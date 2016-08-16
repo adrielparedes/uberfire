@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,10 +35,12 @@ import static org.uberfire.java.nio.fs.jgit.util.JGitUtil.*;
 
 public class JGitForkTest extends AbstractTestInfra {
 
-    private Logger logger = LoggerFactory.getLogger( JGitForkTest.class );
+    public static final String TARGET_GIT = "target.git";
+    public static final String SOURCE_GIT = "source.git";
+    private static Logger logger = LoggerFactory.getLogger( JGitForkTest.class );
 
     @Test
-    public void testToForkSuccess() throws IOException {
+    public void testToForkSuccess() throws IOException, GitAPIException {
         final File parentFolder = createTempDirectory();
 
         final File gitSource = new File( parentFolder, "source.git" );
@@ -53,7 +56,7 @@ public class JGitForkTest extends AbstractTestInfra {
             put( "file3.txt", tempFile( "temp3" ) );
         }} );
 
-        new Fork( parentFolder, "source.git", "target.git", CredentialsProvider.getDefault() ).execute();
+        new Fork( parentFolder, SOURCE_GIT, TARGET_GIT, CredentialsProvider.getDefault() ).execute();
 
         final File gitCloned = new File( parentFolder, "target.git" );
         final Git cloned = Git.open( gitCloned );
@@ -66,6 +69,9 @@ public class JGitForkTest extends AbstractTestInfra {
         assertThat( branchList( cloned, ALL ).get( 1 ).getName() ).isEqualTo( "refs/heads/user_branch" );
         assertThat( branchList( cloned, ALL ).get( 2 ).getName() ).isEqualTo( "refs/remotes/origin/master" );
         assertThat( branchList( cloned, ALL ).get( 3 ).getName() ).isEqualTo( "refs/remotes/origin/user_branch" );
+
+        final String remotePath = cloned.remoteList().call().get( 0 ).getURIs().get( 0 ).getPath();
+        assertThat( remotePath ).isEqualTo( gitSource.getPath() );
 
     }
 
