@@ -23,17 +23,17 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 
 import static org.uberfire.commons.validation.PortablePreconditions.*;
 
-public class Fork extends Clone {
+public class Mirror extends Clone {
 
-    private File parentFolder;
+    private final File parentFolder;
     private final String source;
     private final String target;
-    private CredentialsProvider credentialsProvider;
+    private final CredentialsProvider credentialsProvider;
 
-    public Fork( File parentFolder,
-                 String source,
-                 String target,
-                 CredentialsProvider credentialsProvider ) {
+    public Mirror( File parentFolder,
+                   String source,
+                   String target,
+                   CredentialsProvider credentialsProvider ) {
         this.parentFolder = checkNotNull( "parentFolder", parentFolder );
         this.source = checkNotEmpty( "source", source );
         this.target = checkNotEmpty( "target", target );
@@ -41,10 +41,7 @@ public class Fork extends Clone {
     }
 
     @Override
-    public Optional<Void> execute() {
-
-        final File gitSource = this.getGitRepository( parentFolder, source );
-        return this.clone( parentFolder, gitSource.getPath(), target, credentialsProvider );
+    public <T> Optional<T> execute() {
+        return this.clone( parentFolder, source, target, credentialsProvider );
     }
-
 }
