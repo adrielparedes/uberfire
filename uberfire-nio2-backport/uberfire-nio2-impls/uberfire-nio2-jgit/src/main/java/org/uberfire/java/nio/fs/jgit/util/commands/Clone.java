@@ -24,6 +24,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.java.nio.fs.jgit.util.JGitUtil;
+import org.uberfire.java.nio.fs.jgit.util.exceptions.GitException;
 
 import static org.eclipse.jgit.util.FS.*;
 
@@ -41,12 +42,6 @@ public abstract class Clone extends GitCommand {
             logger.debug( "{} repository successfully cloned into {}", source, gitClonedFolder.getPath() );
         }
         return Optional.empty();
-    }
-
-    protected File getGitRepository( File parentFolder,
-                                     String repo ) {
-        final File repoFolder = new File( parentFolder, repo );
-        return RepositoryCache.FileKey.resolve( repoFolder, DETECTED );
     }
 
 }

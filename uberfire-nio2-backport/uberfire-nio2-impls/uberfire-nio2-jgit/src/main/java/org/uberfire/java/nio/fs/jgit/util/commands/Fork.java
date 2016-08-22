@@ -19,8 +19,11 @@ package org.uberfire.java.nio.fs.jgit.util.commands;
 import java.io.File;
 import java.util.Optional;
 
+import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.transport.CredentialsProvider;
+import org.uberfire.java.nio.fs.jgit.util.exceptions.GitException;
 
+import static org.eclipse.jgit.util.FS.DETECTED;
 import static org.uberfire.commons.validation.PortablePreconditions.*;
 
 public class Fork extends Clone {
@@ -45,6 +48,17 @@ public class Fork extends Clone {
 
         final File gitSource = this.getGitRepository( parentFolder, source );
         return this.clone( parentFolder, gitSource.getPath(), target, credentialsProvider );
+    }
+
+    private File getGitRepository( File parentFolder,
+                                   String repo ) {
+        final File repoFolder = new File( parentFolder, repo );
+        final File resolvedRepository = RepositoryCache.FileKey.resolve( repoFolder, DETECTED );
+        if ( resolvedRepository == null ) {
+            String message = String.format( "Repository %s does not exists. Cannot clone.", repoFolder.getPath() );
+            throw new GitException( message );
+        }
+        return resolvedRepository;
     }
 
 }

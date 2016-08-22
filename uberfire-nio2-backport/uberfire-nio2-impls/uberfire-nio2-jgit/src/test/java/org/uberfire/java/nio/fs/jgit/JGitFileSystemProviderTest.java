@@ -168,7 +168,8 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     }
 
     @Test
-    public void testNewFileSystemClone() throws IOException {
+    public void
+    testNewFileSystemClone() throws IOException {
 
         final URI originRepo = URI.create( "git://my-simple-test-origin-name" );
 

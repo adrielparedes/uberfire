@@ -28,9 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.java.nio.fs.jgit.util.JGitUtil;
 import org.uberfire.java.nio.fs.jgit.util.commands.Fork;
+import org.uberfire.java.nio.fs.jgit.util.exceptions.GitException;
 
 import static org.eclipse.jgit.api.ListBranchCommand.ListMode.ALL;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.*;
 import static org.uberfire.java.nio.fs.jgit.util.JGitUtil.*;
 
 public class JGitForkTest extends AbstractTestInfra {
@@ -72,6 +73,20 @@ public class JGitForkTest extends AbstractTestInfra {
 
         final String remotePath = cloned.remoteList().call().get( 0 ).getURIs().get( 0 ).getPath();
         assertThat( remotePath ).isEqualTo( gitSource.getPath() );
+
+    }
+
+    @Test
+    public void testToForkWrongSource() throws IOException, GitAPIException {
+        final File parentFolder = createTempDirectory();
+
+        try {
+            new Fork( parentFolder, SOURCE_GIT, TARGET_GIT, CredentialsProvider.getDefault() ).execute();
+            fail( "If got here is because it could for the repository" );
+        } catch ( GitException e ) {
+            assertThat( e ).isNotNull();
+            logger.info( e.getMessage(), e );
+        }
 
     }
 
