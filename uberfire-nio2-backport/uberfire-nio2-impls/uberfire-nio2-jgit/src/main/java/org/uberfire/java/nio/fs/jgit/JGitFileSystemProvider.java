@@ -659,9 +659,9 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
         checkURI( "uri", uri );
         checkNotNull( "env", env );
 
-        final String name = extractRepoName( uri );
+        String name = extractRepoName( uri );
 
-        if ( fileSystems.containsKey( uri.getPath() ) ) {
+        if ( fileSystems.containsKey( name ) ) {
             throw new FileSystemAlreadyExistsException( "No filesystem for uri (" + uri + ") found." );
         }
 
@@ -681,13 +681,9 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
 
         boolean bare = true;
         final String outPath = (String) env.get( GIT_ENV_KEY_DEST_PATH );
-        final String groupPath = (String) env.get( GIT_ENV_KEY_DEST_GROUP );
         final File repoDest;
 
-        if ( groupPath != null ) {
-            final File groupDest = new File( gitReposParentDir, groupPath );
-            repoDest = new File( groupDest, name + DOT_GIT_EXT );
-        } else if ( outPath != null ) {
+        if ( outPath != null ) {
             repoDest = new File( outPath, name + DOT_GIT_EXT );
         } else {
             repoDest = new File( gitReposParentDir, name + DOT_GIT_EXT );
@@ -812,7 +808,7 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
             throw new FileSystemNotFoundException( "No filesystem for uri (" + uri + ") found." );
         }
 
-        return JGitPathImpl.create( fileSystem, extractPath( uri ), extractHost( uri ), false );
+        return JGitPathImpl.create( fileSystem, extractPath( uri ), extractRepoName( uri ), false );
     }
 
     @Override
@@ -1911,11 +1907,15 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
     private String extractRepoName( final URI uri ) {
         checkNotNull( "uri", uri );
 
-        final String host = extractHost( uri );
+        String host = extractHost( uri );
 
         int index = host.indexOf( '@' );
         if ( index != -1 ) {
             return host.substring( index + 1 );
+        }
+
+        if ( uri.getPath() != null ) {
+            host = host + uri.getPath();
         }
 
         return host;
@@ -1961,9 +1961,9 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
     private String extractPath( final URI uri ) {
         checkNotNull( "uri", uri );
 
-        final String host = extractHost( uri );
+        final String repoName = extractRepoName( uri );
 
-        final String path = EncodingUtil.decode( uri.toString() ).substring( getSchemeSize( uri ) + host.length() );
+        final String path = EncodingUtil.decode( uri.toString() ).substring( getSchemeSize( uri ) + repoName.length() );
 
         if ( path.startsWith( "/:" ) ) {
             return path.substring( 2 );

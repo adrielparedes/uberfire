@@ -140,6 +140,18 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     }
 
     @Test
+    public void testNewFileSystemWithSubfolder() {
+        final URI newRepo = URI.create( "git://folder/sub-repo-name" );
+        final FileSystem fs = provider.newFileSystem( newRepo, EMPTY_ENV );
+
+        assertThat( fs ).isNotNull();
+
+        final DirectoryStream<Path> stream = provider.newDirectoryStream( provider.getPath( newRepo ), null );
+        assertThat( stream ).isNotNull().hasSize( 0 );
+
+    }
+
+    @Test
     public void testNewFileSystemInited() {
         final URI newRepo = URI.create( "git://init-repo-name" );
 
