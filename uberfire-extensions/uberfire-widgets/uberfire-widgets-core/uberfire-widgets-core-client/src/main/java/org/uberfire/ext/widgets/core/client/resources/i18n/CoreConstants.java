@@ -159,16 +159,26 @@ public interface CoreConstants
     String Branches();
 
     String Update();
-    
+
     String GroupId();
-    
+
     String ArtifactId();
-    
+
     String Version();
-    
+
     String GroupIdHolder();
-    
+
     String ArtifactIdHolder();
-    
+
     String VersionHolder();
+
+    String ForkRepository();
+
+    String Fork();
+
+    String Repository();
+
+    String SourceOrganizationalUnit();
+
+    String TargetOrganizationalUnit();
 }

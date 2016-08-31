@@ -25,6 +25,7 @@ import org.jboss.errai.marshalling.server.ServerMarshalling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.io.IOService;
+import org.uberfire.java.nio.file.CopyOption;
 import org.uberfire.java.nio.file.FileSystem;
 import org.uberfire.java.nio.file.FileSystemAlreadyExistsException;
 import org.uberfire.java.nio.file.Path;
@@ -100,6 +101,14 @@ public class ObjectStorageImpl implements ObjectStorage {
     @Override
     public void delete( final String path ) {
         ioService.deleteIfExists( fileSystem.getPath( path ) );
+    }
+
+    @Override
+    public void move( final String source,
+                      final String target ) {
+        Path fsSource = fileSystem.getPath( source );
+        Path fsTarget = fileSystem.getPath( target );
+        ioService.move( fsSource, fsTarget );
     }
 
     @Override

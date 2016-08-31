@@ -1430,7 +1430,6 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         provider.setAttribute( generalPath, SquashOption.SQUASH_ATTR, squashOption );
     }
 
-
     @Test
     public void checkBatchError() throws Exception {
         final URI newRepo = URI.create( "git://outstream-test-repo" );

@@ -127,6 +127,16 @@ public class ObjectStorageTest {
     }
 
     @Test
+    public void testRenameFile() {
+
+        objectStorage.write( "/forks/uberfire", "content b" );
+        assertTrue( objectStorage.exists( "/forks/uberfire" ) );
+        objectStorage.move( "/forks/uberfire", "/forks/guvnor" );
+        assertFalse( objectStorage.exists( "/forks/uberfire" ) );
+        assertTrue( objectStorage.exists( "/forks/guvnor" ) );
+    }
+
+    @Test
     public void testWriteAndDelete() {
 
         objectStorage.write( "/forks/uberfire", "content b" );

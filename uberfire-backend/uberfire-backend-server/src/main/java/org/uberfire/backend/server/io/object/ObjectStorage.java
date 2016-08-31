@@ -58,6 +58,14 @@ public interface ObjectStorage {
     void delete( String path );
 
     /**
+     * Move path from source to target into the object storage.
+     * @param source The path to move
+     * @param target The destination path
+     */
+    void move( String source,
+               String target );
+
+    /**
      * Return a path based on the filesystem that is implemented for storage
      * @param first the path string or initial part of the path string
      * @param path additional strings to be joined to form the path string

@@ -194,6 +194,7 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
     public static final String SSH_ALGORITHM = "DSA";
     public static final String SSH_CERT_PASSPHRASE = "";
     public static final String DEFAULT_COMMIT_LIMIT_TO_GC = "20";
+    private static final String GIT_ENV_KEY_DEST_GROUP = "group";
 
     private File gitReposParentDir;
 
@@ -660,7 +661,7 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
 
         final String name = extractRepoName( uri );
 
-        if ( fileSystems.containsKey( name ) ) {
+        if ( fileSystems.containsKey( uri.getPath() ) ) {
             throw new FileSystemAlreadyExistsException( "No filesystem for uri (" + uri + ") found." );
         }
 
@@ -680,9 +681,13 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
 
         boolean bare = true;
         final String outPath = (String) env.get( GIT_ENV_KEY_DEST_PATH );
-
+        final String groupPath = (String) env.get( GIT_ENV_KEY_DEST_GROUP );
         final File repoDest;
-        if ( outPath != null ) {
+
+        if ( groupPath != null ) {
+            final File groupDest = new File( gitReposParentDir, groupPath );
+            repoDest = new File( groupDest, name + DOT_GIT_EXT );
+        } else if ( outPath != null ) {
             repoDest = new File( outPath, name + DOT_GIT_EXT );
         } else {
             repoDest = new File( gitReposParentDir, name + DOT_GIT_EXT );
@@ -690,8 +695,13 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
 
         if ( env.containsKey( GIT_ENV_KEY_DEFAULT_REMOTE_NAME ) ) {
             final String originURI = env.get( GIT_ENV_KEY_DEFAULT_REMOTE_NAME ).toString();
+
+//            if ( this.isForkOrigin( originURI ) ) {
+//            new Fork()
+//            } else {
             credential = buildCredential( env );
             git = cloneRepository( repoDest, originURI, bare, credential );
+//            }
         } else {
             credential = buildCredential( null );
             git = newRepository( repoDest, bare, hookDir );
@@ -735,6 +745,12 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
         }
 
         return fs;
+    }
+
+    private String getRepoName( final URI uri ) {
+        String path = uri.getPath();
+        int indexOf = path.lastIndexOf( "/" );
+        return path.substring( indexOf + 1 );
     }
 
     private CommentedOption setupOp( final Map<String, ?> env ) {
