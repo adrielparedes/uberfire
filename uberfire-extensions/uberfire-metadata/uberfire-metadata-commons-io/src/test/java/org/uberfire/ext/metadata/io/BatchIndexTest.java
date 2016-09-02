@@ -83,7 +83,7 @@ public class BatchIndexTest extends BaseIndexTest {
     @Test
     public void testIndex() throws IOException, InterruptedException {
         {
-            final Path file = ioService().get( "git://temp-repo-test/path/to/file.txt" );
+            final Path file = ioService().get( "git://test/temp-repo-test/path/to/file.txt" );
             ioService().write( file,
                                "some content here", Collections.<OpenOption>emptySet(),
                                new FileAttribute<Object>() {
@@ -119,10 +119,10 @@ public class BatchIndexTest extends BaseIndexTest {
                                        return "initial document version, should be revised later.";
                                    }
                                }
-                             );
+            );
         }
         {
-            final Path file = ioService().get( "git://temp-repo-test/path/to/some/complex/file.txt" );
+            final Path file = ioService().get( "git://test/temp-repo-test/path/to/some/complex/file.txt" );
             ioService().write( file,
                                "some other content here",
                                Collections.<OpenOption>emptySet(),
@@ -159,10 +159,10 @@ public class BatchIndexTest extends BaseIndexTest {
                                        return "important document, should be used right now.";
                                    }
                                }
-                             );
+            );
         }
         {
-            final Path file = ioService().get( "git://temp-repo-test/simple.doc" );
+            final Path file = ioService().get( "git://test/temp-repo-test/simple.doc" );
             ioService().write( file,
                                "some doc content here",
                                Collections.<OpenOption>emptySet(),
@@ -199,11 +199,11 @@ public class BatchIndexTest extends BaseIndexTest {
                                        return "unlock document updated, should be checked by boss.";
                                    }
                                }
-                             );
+            );
         }
 
         {
-            final Path file = ioService().get( "git://temp-repo-test/xxx/simple.xls" );
+            final Path file = ioService().get( "git://test/temp-repo-test/xxx/simple.xls" );
             ioService().write( file,
                                "plans!?" );
         }
@@ -211,13 +211,13 @@ public class BatchIndexTest extends BaseIndexTest {
         new BatchIndex( config.getIndexEngine(),
                         ioService(),
                         observer(),
-                        DublinCoreView.class ).run( ioService().get( "git://temp-repo-test/" ),
+                        DublinCoreView.class ).run( ioService().get( "git://test/temp-repo-test/" ),
                                                     new Runnable() {
 
                                                         @Override
                                                         public void run() {
                                                             try {
-                                                                final Index index = config.getIndexManager().get( toKCluster( ioService().get( "git://temp-repo-test/" ).getFileSystem() ) );
+                                                                final Index index = config.getIndexManager().get( toKCluster( ioService().get( "git://test/temp-repo-test/" ).getFileSystem() ) );
 
                                                                 final IndexSearcher searcher = ( (LuceneIndex) index ).nrtSearcher();
                                                                 {

@@ -452,7 +452,7 @@ public class FilesTest extends AbstractBaseTest {
         final Map<String, Object> env = new HashMap<String, Object>( 2 );
         env.put( "userName", "user" );
         env.put( "password", "pass" );
-        final URI uri = URI.create( "git://test" + System.currentTimeMillis() );
+        final URI uri = URI.create( "git://folder/test" + System.currentTimeMillis() );
         FileSystems.newFileSystem( uri, env );
 
         Files.copy( Paths.get( uri ), newTempDir() );
@@ -558,9 +558,9 @@ public class FilesTest extends AbstractBaseTest {
         final Map<String, Object> env = new HashMap<String, Object>( 2 );
         env.put( "userName", "user" );
         env.put( "password", "pass" );
-        FileSystems.newFileSystem( URI.create( "git://testXXXXXXX" ), env );
+        FileSystems.newFileSystem( URI.create( "git://folder/testXXXXXXX" ), env );
 
-        Files.move( Paths.get( URI.create( "git://testXXXXXXX" ) ), newTempDir() );
+        Files.move( Paths.get( URI.create( "git://folder/testXXXXXXX" ) ), newTempDir() );
     }
 
     @Test
@@ -570,7 +570,7 @@ public class FilesTest extends AbstractBaseTest {
         final Map<String, Object> env = new HashMap<String, Object>( 2 );
         env.put( "userName", "user" );
         env.put( "password", "pass" );
-        final String repoName = "git://testXXXXXXX" + System.currentTimeMillis();
+        final String repoName = "git://folder/testXXXXXXX" + System.currentTimeMillis();
         final URI uri = URI.create( repoName );
         FileSystems.newFileSystem( uri, env );
 

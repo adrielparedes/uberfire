@@ -16,10 +16,6 @@
 
 package org.uberfire.ext.metadata.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -34,9 +30,11 @@ import org.uberfire.ext.metadata.engine.Observer;
 import org.uberfire.io.IOService;
 import org.uberfire.java.nio.file.FileSystem;
 
+import static org.junit.Assert.*;
+
 public class BatchIndexConcurrenyTest extends BaseIndexTest {
 
-    private static final String REPO_NAME  = "temp-repo-batch-index-test";
+    private static final String REPO_NAME = "temp-repo-batch-index-test";
 
     private static class ConcurrencyObserver implements Observer {
 
@@ -75,7 +73,6 @@ public class BatchIndexConcurrenyTest extends BaseIndexTest {
 
     private ConcurrencyObserver observer = new ConcurrencyObserver();
 
-    
     @Override
     @SuppressWarnings("unchecked")
     protected IOService ioService() {
@@ -93,43 +90,43 @@ public class BatchIndexConcurrenyTest extends BaseIndexTest {
 
     @Override
     protected String[] getRepositoryNames() {
-        return new String[]{ REPO_NAME  };
+        return new String[]{ REPO_NAME };
     }
 
     @Before
     public void setup() throws IOException {
         super.setup();
-        ioService.createDirectory( getBasePath( REPO_NAME ) );
+        ioService.createDirectory( getBasePath( "test/" + REPO_NAME ) );
     }
-    
+
     @After
     public void tearDown() throws IOException {
-        ioService().deleteIfExists( getBasePath( REPO_NAME ) );
+        ioService().deleteIfExists( getBasePath( "test/" + REPO_NAME ) );
     }
-    
+
     @Test
     //See https://bugzilla.redhat.com/show_bug.cgi?id=1288132
     public void testSingleBatchIndexExecution() throws IOException, InterruptedException {
         //Make multiple requests for the FileSystem. We should only have one batch index operation
-        final FileSystem fs1 = ioService().getFileSystem( URI.create( "git://temp-repo-batch-index-test/file1" ) );
+        final FileSystem fs1 = ioService().getFileSystem( URI.create( "git://test/temp-repo-batch-index-test/file1" ) );
         assertNotNull( fs1 );
 
-        final FileSystem fs2 = ioService().getFileSystem( URI.create( "git://temp-repo-batch-index-test/file1" ) );
+        final FileSystem fs2 = ioService().getFileSystem( URI.create( "git://test/temp-repo-batch-index-test/file1" ) );
         assertNotNull( fs2 );
 
-        final FileSystem fs3 = ioService().getFileSystem( URI.create( "git://temp-repo-batch-index-test/file1" ) );
+        final FileSystem fs3 = ioService().getFileSystem( URI.create( "git://test/temp-repo-batch-index-test/file1" ) );
         assertNotNull( fs3 );
 
         Thread.sleep( 5000 ); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
 
         assertEvents();
     }
-    
+
     @Test
     //See https://bugzilla.redhat.com/show_bug.cgi?id=1288132
     public void testSingleConcurrentBatchIndexExecution() throws IOException, InterruptedException {
         //Make multiple requests for the FileSystem. We should only have one batch index operation
-        final CountDownLatch startSignal= new CountDownLatch(1);
+        final CountDownLatch startSignal = new CountDownLatch( 1 );
         for ( int i = 0; i < 3; i++ ) {
             Runnable r = new Runnable() {
 
@@ -137,10 +134,9 @@ public class BatchIndexConcurrenyTest extends BaseIndexTest {
                 public void run() {
                     try {
                         startSignal.await();
-                        ioService().getFileSystem( URI.create( "git://temp-repo-batch-index-test/file1" ) );
-                    } 
-                    catch ( InterruptedException e ) {
-                        fail(e.getMessage());
+                        ioService().getFileSystem( URI.create( "git://test/temp-repo-batch-index-test/file1" ) );
+                    } catch ( InterruptedException e ) {
+                        fail( e.getMessage() );
                     }
                 }
             };
@@ -154,14 +150,14 @@ public class BatchIndexConcurrenyTest extends BaseIndexTest {
     }
 
     private void assertEvents() {
-        System.out.println(observer.getInformationMessages());
-        
+        System.out.println( observer.getInformationMessages() );
+
         assertEquals( 2, observer.getInformationMessages().size() );
         assertEquals( 0, observer.getWarningMessages().size() );
         assertEquals( 0, observer.getErrorMessages().size() );
 
-        assertContains( "Starting indexing of git://master@temp-repo-batch-index-test/ ...", observer.getInformationMessages() );
-        assertContains( "Completed indexing of git://master@temp-repo-batch-index-test/", observer.getInformationMessages() );
+        assertContains( "Starting indexing of git://master@test/temp-repo-batch-index-test/ ...", observer.getInformationMessages() );
+        assertContains( "Completed indexing of git://master@test/temp-repo-batch-index-test/", observer.getInformationMessages() );
     }
 
     private void assertContains( final String expected,
@@ -177,5 +173,5 @@ public class BatchIndexConcurrenyTest extends BaseIndexTest {
         }
         fail( "Expected '" + expected + "' was not found in " + sb.toString() );
     }
-    
+
 }

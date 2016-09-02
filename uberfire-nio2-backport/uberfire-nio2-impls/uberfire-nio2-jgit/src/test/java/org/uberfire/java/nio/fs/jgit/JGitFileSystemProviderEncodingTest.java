@@ -44,7 +44,7 @@ public class JGitFileSystemProviderEncodingTest extends AbstractTestInfra {
 
     @Test
     public void test() throws IOException {
-        final URI originRepo = URI.create( "git://encoding-origin-name" );
+        final URI originRepo = URI.create( "git://folder/encoding-origin-name" );
 
         final JGitFileSystem origin = (JGitFileSystem) provider.newFileSystem( originRepo, new HashMap<String, Object>() {{
             put( "listMode", "ALL" );
@@ -62,10 +62,10 @@ public class JGitFileSystemProviderEncodingTest extends AbstractTestInfra {
             put( "file name.txt", tempFile( "temp3" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://my-encoding-repo-name" );
+        final URI newRepo = URI.create( "git://folder/my-encoding-repo-name" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
-            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/encoding-origin-name" );
+            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/folder/encoding-origin-name" );
             put( "listMode", "ALL" );
         }};
 

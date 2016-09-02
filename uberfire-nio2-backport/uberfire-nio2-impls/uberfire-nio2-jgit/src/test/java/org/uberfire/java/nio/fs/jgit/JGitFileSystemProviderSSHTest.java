@@ -77,7 +77,7 @@ public class JGitFileSystemProviderSSHTest extends AbstractTestInfra {
         assertEquals( "10001", provider.getGitSSHService().getProperties().get( SshServer.IDLE_TIMEOUT ) );
 
         //Setup origin
-        final URI originRepo = URI.create( "git://repo" );
+        final URI originRepo = URI.create( "git://folder/repo" );
         final JGitFileSystem origin = (JGitFileSystem) provider.newFileSystem( originRepo,
                                                                                new HashMap<String, Object>() {{
                                                                                    put( "listMode", "ALL" );
@@ -90,16 +90,16 @@ public class JGitFileSystemProviderSSHTest extends AbstractTestInfra {
 
         //Setup clone
         JGitFileSystem clone;
-        clone = (JGitFileSystem) provider.newFileSystem( URI.create( "git://repo-clone" ),
+        clone = (JGitFileSystem) provider.newFileSystem( URI.create( "git://folder/repo-clone" ),
                                                          new HashMap<String, Object>() {{
                                                              put( "init", "true" );
-                                                             put( "origin", "ssh://admin@localhost:" + gitSSHPort + "/repo" );
+                                                             put( "origin", "ssh://admin@localhost:" + gitSSHPort + "/folder/repo" );
                                                          }} );
 
         assertNotNull( clone );
 
         //Push clone back to origin
-        provider.getFileSystem( URI.create( "git://repo-clone?push=ssh://admin@localhost:" + gitSSHPort + "/repo" ) );
+        provider.getFileSystem( URI.create( "git://folder/repo-clone?push=ssh://admin@localhost:" + gitSSHPort + "/folder/repo" ) );
     }
 
 }

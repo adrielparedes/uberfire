@@ -16,14 +16,14 @@
 
 package org.uberfire.mocks;
 
+import java.io.IOException;
+import java.net.URI;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.uberfire.io.IOService;
 import org.uberfire.java.nio.file.Path;
-
-import java.io.IOException;
-import java.net.URI;
 
 import static org.junit.Assert.*;
 
@@ -44,7 +44,7 @@ public class FileSystemTestingUtilsTest {
     @Test
     public void fsUtilsSanityCheck() throws IOException, InterruptedException {
         IOService ioService = fileSystemTestingUtils.getIoService();
-        Path init = ioService.get(URI.create("git://amend-repo-test/init.file"));
+        Path init = ioService.get(URI.create("git://test/amend-repo-test/init.file"));
         String expected = "setupFS!";
         ioService.write(init, expected);
         assertEquals(expected, ioService.readAllString(init));

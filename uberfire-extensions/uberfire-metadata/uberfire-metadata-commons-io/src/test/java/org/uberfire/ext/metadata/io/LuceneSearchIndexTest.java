@@ -41,10 +41,10 @@ public class LuceneSearchIndexTest extends BaseIndexTest {
     @Test
     public void testClusterSegments() throws IOException, InterruptedException {
         //Add test files
-        final Path path1 = getBasePath( this.getClass().getSimpleName() + "_1" ).resolve( "indexedFile1.txt" );
+        final Path path1 = getBasePath( "test/" + this.getClass().getSimpleName() + "_1" ).resolve( "indexedFile1.txt" );
         ioService().write( path1,
                            "content1" );
-        final Path path2 = getBasePath( this.getClass().getSimpleName() + "_2" ).resolve( "indexedFile2.txt" );
+        final Path path2 = getBasePath( "test/" + this.getClass().getSimpleName() + "_2" ).resolve( "indexedFile2.txt" );
         ioService().write( path2,
                            "content2" );
 
@@ -52,23 +52,23 @@ public class LuceneSearchIndexTest extends BaseIndexTest {
         final ClusterSegment cs1 = new ClusterSegment() {
             @Override
             public String getClusterId() {
-                return ( (FileSystemId) getBasePath( LuceneSearchIndexTest.this.getClass().getSimpleName() + "_1" ).getFileSystem() ).id();
+                return ( (FileSystemId) getBasePath( "test/" + LuceneSearchIndexTest.this.getClass().getSimpleName() + "_1" ).getFileSystem() ).id();
             }
 
             @Override
             public String[] segmentIds() {
-                return new String[]{ ( (SegmentedPath) getBasePath( LuceneSearchIndexTest.this.getClass().getSimpleName() + "_1" ) ).getSegmentId() };
+                return new String[]{ ( (SegmentedPath) getBasePath( "test/" + LuceneSearchIndexTest.this.getClass().getSimpleName() + "_1" ) ).getSegmentId() };
             }
         };
         final ClusterSegment cs2 = new ClusterSegment() {
             @Override
             public String getClusterId() {
-                return ( (FileSystemId) getBasePath( LuceneSearchIndexTest.this.getClass().getSimpleName() + "_2" ).getFileSystem() ).id();
+                return ( (FileSystemId) getBasePath( "test/" + LuceneSearchIndexTest.this.getClass().getSimpleName() + "_2" ).getFileSystem() ).id();
             }
 
             @Override
             public String[] segmentIds() {
-                return new String[]{ ( (SegmentedPath) getBasePath( LuceneSearchIndexTest.this.getClass().getSimpleName() + "_2" ) ).getSegmentId() };
+                return new String[]{ ( (SegmentedPath) getBasePath( "test/" + LuceneSearchIndexTest.this.getClass().getSimpleName() + "_2" ) ).getSegmentId() };
             }
         };
 

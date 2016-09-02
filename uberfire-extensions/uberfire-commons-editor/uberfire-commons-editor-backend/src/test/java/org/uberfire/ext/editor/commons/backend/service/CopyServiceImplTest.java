@@ -61,7 +61,7 @@ import static org.mockito.Mockito.eq;
 @RunWith(MockitoJUnitRunner.class)
 public class CopyServiceImplTest {
 
-    private static final String PATH_PREFIX = "git://amend-repo-test/";
+    private static final String PATH_PREFIX = "git://test/amend-repo-test/";
 
     private static FileSystemTestingUtils fileSystemTestingUtils = new FileSystemTestingUtils();
 

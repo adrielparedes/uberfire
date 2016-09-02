@@ -46,7 +46,7 @@ public class OpenCloseTest {
         System.setProperty( "org.uberfire.nio.git.dir", path.getAbsolutePath() );
         System.out.println( ".niogit: " + path.getAbsolutePath() );
 
-        final URI newRepo = URI.create( "git://open-close-repo-test" );
+        final URI newRepo = URI.create( "git://folder/open-close-repo-test" );
 
         ioService.newFileSystem( newRepo, new HashMap<String, Object>() );
     }
@@ -61,12 +61,12 @@ public class OpenCloseTest {
 
     @Test
     public void testOpenCloseFS() throws IOException, InterruptedException {
-        Path init = ioService.get( URI.create( "git://open-close-repo-test/readme.txt" ) );
+        Path init = ioService.get( URI.create( "git://folder/open-close-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.delete( init.getFileSystem().getPath( null ) );
 
-        final URI repo = URI.create( "git://open-close-repo-test" );
+        final URI repo = URI.create( "git://folder/open-close-repo-test" );
         try {
             ioService.newFileSystem( repo, new HashMap<String, Object>() );
         } catch ( FileSystemAlreadyExistsException ex ) {
@@ -76,7 +76,7 @@ public class OpenCloseTest {
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
         assertEquals( "init!", ioService.readAllString( init ) );
 
-        init = ioService.get( URI.create( "git://open-close-repo-test/readme.txt" ) );
+        init = ioService.get( URI.create( "git://folder/open-close-repo-test/readme.txt" ) );
         ioService.delete( init.getFileSystem().getPath( null ) );
     }
 

@@ -63,7 +63,7 @@ public class JGitFileSystemProviderHookTest extends AbstractTestInfra {
 
     @Test
     public void testInstalledHook() {
-        final URI newRepo = URI.create("git://hook-repo-name");
+        final URI newRepo = URI.create("git://folder/hook-repo-name");
 
         final FileSystem fs = provider.newFileSystem(newRepo, EMPTY_ENV);
 
@@ -107,7 +107,7 @@ public class JGitFileSystemProviderHookTest extends AbstractTestInfra {
      * @throws IOException
      */
     private void testHook(final String gitRepoName, final String testedHookName, final boolean wasExecuted) throws IOException {
-        final URI newRepo = URI.create( "git://" + gitRepoName );
+        final URI newRepo = URI.create( "git://folder/" + gitRepoName );
 
         final AtomicBoolean hookExecuted = new AtomicBoolean( false );
         final FileSystem fs = provider.newFileSystem( newRepo, EMPTY_ENV );
@@ -126,7 +126,7 @@ public class JGitFileSystemProviderHookTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@" + gitRepoName + "/some/path/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/" + gitRepoName + "/some/path/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();

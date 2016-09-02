@@ -67,35 +67,35 @@ public class BatchTest {
         System.setProperty( "org.uberfire.nio.git.dir", path.getAbsolutePath() );
         System.out.println( ".niogit: " + path.getAbsolutePath() );
 
-        final URI newRepo = URI.create( "git://amend-repo-test" );
+        final URI newRepo = URI.create( "git://folder/amend-repo-test" );
 
         fs1 = ioService.newFileSystem( newRepo, new HashMap<String, Object>() );
         fs1Batch = (JGitFileSystem) fs1;
-        Path init = ioService.get( URI.create( "git://amend-repo-test/init.file" ) );
+        Path init = ioService.get( URI.create( "git://folder/amend-repo-test/init.file" ) );
         ioService.write( init, "setupFS!" );
 
-        final URI newRepo2 = URI.create( "git://check-amend-repo-test" );
+        final URI newRepo2 = URI.create( "git://folder/check-amend-repo-test" );
 
         fs2 = ioService.newFileSystem( newRepo2, new HashMap<String, Object>() {{
             put( "init", "true" );
         }} );
         fs2Batch = (JGitFileSystem) fs2;
-        init = ioService.get( URI.create( "git://check-amend-repo-test/init.file" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test/init.file" ) );
         ioService.write( init, "setupFS!" );
 
-        final URI newRepo3 = URI.create( "git://check-amend-repo-test-2" );
+        final URI newRepo3 = URI.create( "git://folder/check-amend-repo-test-2" );
         fs3 = ioService.newFileSystem( newRepo3, new HashMap<String, Object>() {{
             put( "init", "true" );
         }} );
         fs3Batch = (JGitFileSystem) fs3;
-        init = ioService.get( URI.create( "git://check-amend-repo-test-2/init.file" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test-2/init.file" ) );
         ioService.write( init, "setupFS!" );
     }
 
     @AfterClass
     public static void cleanup() {
         FileUtils.deleteQuietly( path );
-        JGitFileSystemProvider gitFsProvider = (JGitFileSystemProvider) FileSystemProviders.resolveProvider( URI.create( "git://whatever" ) );
+        JGitFileSystemProvider gitFsProvider = (JGitFileSystemProvider) FileSystemProviders.resolveProvider( URI.create( "git://folder/whatever" ) );
         gitFsProvider.shutdown();
         FileUtils.deleteQuietly( gitFsProvider.getGitRepoContainerDir() );
         gitFsProvider.rescanForExistingRepositories();
@@ -103,7 +103,7 @@ public class BatchTest {
 
     @Test
     public void testBatch() throws IOException, InterruptedException {
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         final WatchService ws = init.getFileSystem().newWatchService();
 
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
@@ -113,7 +113,7 @@ public class BatchTest {
             assertEquals( 1, events.size() );//modify readme
         }
 
-        final Path init2 = ioService.get( URI.create( "git://amend-repo-test/readme2.txt" ) );
+        final Path init2 = ioService.get( URI.create( "git://folder/amend-repo-test/readme2.txt" ) );
         ioService.write( init2, "init 3!", new CommentedOption( "User Tester", "message3" ) );
         {
             List<WatchEvent<?>> events = ws.poll().pollEvents();
@@ -136,8 +136,8 @@ public class BatchTest {
         assertEquals( 2, vinit2.readAttributes().history().records().size() );
 
         ioService.startBatch( new FileSystem[]{ init.getFileSystem() } );
-        final Path path = ioService.get( URI.create( "git://amend-repo-test/mybatch" + new Random( 10L ).nextInt() + ".txt" ) );
-        final Path path2 = ioService.get( URI.create( "git://amend-repo-test/mybatch2" + new Random( 10L ).nextInt() + ".txt" ) );
+        final Path path = ioService.get( URI.create( "git://folder/amend-repo-test/mybatch" + new Random( 10L ).nextInt() + ".txt" ) );
+        final Path path2 = ioService.get( URI.create( "git://folder/amend-repo-test/mybatch2" + new Random( 10L ).nextInt() + ".txt" ) );
         ioService.write( path, "ooooo!" );
         //init.file event
         assertNotNull( ws.poll() );
@@ -164,9 +164,9 @@ public class BatchTest {
 
     @Test
     public void testBatch2() throws IOException, InterruptedException {
-        final Path f1 = ioService.get( URI.create( "git://check-amend-repo-test/f1.txt" ) );
-        final Path f2 = ioService.get( URI.create( "git://check-amend-repo-test/f2.txt" ) );
-        final Path f3 = ioService.get( URI.create( "git://check-amend-repo-test/f3.txt" ) );
+        final Path f1 = ioService.get( URI.create( "git://folder/check-amend-repo-test/f1.txt" ) );
+        final Path f2 = ioService.get( URI.create( "git://folder/check-amend-repo-test/f2.txt" ) );
+        final Path f3 = ioService.get( URI.create( "git://folder/check-amend-repo-test/f3.txt" ) );
         // XXX: Workaround for UF-70: amend-test-repo has to contain something so it can receive the BATCH
         ioService.write( f1, "init f1!" );
         ioService.write( f2, "init f2!" );
@@ -229,7 +229,7 @@ public class BatchTest {
 
     @Test
     public void batchTest() throws IOException, InterruptedException {
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -240,10 +240,10 @@ public class BatchTest {
 
     @Test
     public void justOneFSOnBatchTest() throws IOException, InterruptedException {
-        Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
-        init = ioService.get( URI.create( "git://check-amend-repo-test/readme.txt" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -256,10 +256,10 @@ public class BatchTest {
 
     @Test
     public void testInnerBatch() throws IOException, InterruptedException {
-        Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
-        init = ioService.get( URI.create( "git://check-amend-repo-test/readme.txt" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -274,7 +274,7 @@ public class BatchTest {
 
     @Test
     public void assertNumberOfCommitsOnInnerBatch() throws IOException, InterruptedException {
-        final Path f11 = ioService.get( URI.create( "git://check-amend-repo-test/f11.txt" ) );
+        final Path f11 = ioService.get( URI.create( "git://folder/check-amend-repo-test/f11.txt" ) );
         // XXX: Workaround for UF-70: amend-test-repo has to contain something so it can receive the BATCH
         ioService.write( f11, "init f1!" );
         // END workaround
@@ -309,10 +309,10 @@ public class BatchTest {
 
     @Test
     public void testTwoStartedFsOnBatchByTheSameThread() throws IOException, InterruptedException {
-        Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
-        init = ioService.get( URI.create( "git://check-amend-repo-test/readme.txt" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -334,10 +334,10 @@ public class BatchTest {
 
     @Test
     public void testTwoFsOnBatchByTheSameThread() throws IOException, InterruptedException {
-        Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
-        init = ioService.get( URI.create( "git://check-amend-repo-test/readme.txt" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -350,10 +350,10 @@ public class BatchTest {
 
     @Test
     public void iCanLockMultipleFS() throws IOException, InterruptedException {
-        Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
-        init = ioService.get( URI.create( "git://check-amend-repo-test/readme.txt" ) );
+        init = ioService.get( URI.create( "git://folder/check-amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
         ioService.startBatch( new FileSystem[]{ fs1, fs2 } );
@@ -368,7 +368,7 @@ public class BatchTest {
     @Test
     public void testDifferentThreads() throws IOException, InterruptedException {
 
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!" );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -408,7 +408,7 @@ public class BatchTest {
 
     @Test
     public void testDifferentThreadsWithoutBatch() throws IOException, InterruptedException {
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!" );
 
         new Thread( "second" ) {
@@ -439,7 +439,7 @@ public class BatchTest {
 
     @Test
     public void testDifferentThreads3() throws IOException, InterruptedException {
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!" );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -489,7 +489,7 @@ public class BatchTest {
 
     @Test
     public void testDifferentThreadsNotBatchInners() throws IOException, InterruptedException {
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!" );
 
         ioService.startBatch( new FileSystem[]{ fs1 } );
@@ -535,7 +535,7 @@ public class BatchTest {
 
     @Test
     public void testDifferentThreadsNotBatchOuter() throws IOException, InterruptedException {
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioService.write( init, "init!" );
 
         final Runnable runnable = new Runnable() {
@@ -583,7 +583,7 @@ public class BatchTest {
 
         Mockito.doThrow( new RuntimeException() ).when( ioServiceSpy ).unsetBatchModeOn( fs1Batch );
 
-        final Path init = ioService.get( URI.create( "git://amend-repo-test/readme.txt" ) );
+        final Path init = ioService.get( URI.create( "git://folder/amend-repo-test/readme.txt" ) );
         ioServiceSpy.write( init, "init!", new CommentedOption( "User Tester", "message1" ) );
 
 

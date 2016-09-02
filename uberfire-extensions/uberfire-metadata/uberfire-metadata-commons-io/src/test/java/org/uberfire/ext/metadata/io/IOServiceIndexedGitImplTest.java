@@ -49,7 +49,7 @@ public class IOServiceIndexedGitImplTest extends BaseIndexTest {
 
     @Test
     public void testIndexedFile() throws IOException, InterruptedException {
-        final Path path1 = getBasePath( this.getClass().getSimpleName() ).resolve( "myIndexedFile.txt" );
+        final Path path1 = getBasePath( "test/"+this.getClass().getSimpleName() ).resolve( "myIndexedFile.txt" );
         ioService().write( path1,
                            "ooooo!",
                            Collections.<OpenOption>emptySet(),
@@ -88,7 +88,7 @@ public class IOServiceIndexedGitImplTest extends BaseIndexTest {
                            }
                          );
 
-        final Path path2 = getBasePath( this.getClass().getSimpleName() ).resolve( "myOtherIndexedFile.txt" );
+        final Path path2 = getBasePath( "test/"+this.getClass().getSimpleName() ).resolve( "myOtherIndexedFile.txt" );
         ioService().write( path2,
                            "ooooo!",
                            Collections.<OpenOption>emptySet(),

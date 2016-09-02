@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 
 public class PathNamingServiceImplTest {
 
-    private static final String PATH_PREFIX = "git://amend-repo-test/";
+    private static final String PATH_PREFIX = "git://test/amend-repo-test/";
 
     private static FileSystemTestingUtils fileSystemTestingUtils = new FileSystemTestingUtils();
 

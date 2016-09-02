@@ -90,13 +90,13 @@ public class GitIOServiceDotFileTest extends CommonIOExceptionsServiceDotFileTes
     @Test
     public void testGetFileSystems() {
 
-        final URI newRepo = URI.create( "git://" + new Date().getTime() + "-repo-test" );
+        final URI newRepo = URI.create( "git://folder/" + new Date().getTime() + "-repo-test" );
         ioService().newFileSystem( newRepo, new HashMap<String, Object>() );
 
-        final URI newRepo2 = URI.create( "git://" + new Date().getTime() + "-repo2-test" );
+        final URI newRepo2 = URI.create( "git://folder/" + new Date().getTime() + "-repo2-test" );
         ioService().newFileSystem( newRepo2, new HashMap<String, Object>() );
 
-        final URI newRepo3 = URI.create( "git://" + new Date().getTime() + "-repo3-test" );
+        final URI newRepo3 = URI.create( "git://folder/" + new Date().getTime() + "-repo3-test" );
         ioService().newFileSystem( newRepo3, new HashMap<String, Object>() );
 
         final Iterator<FileSystem> iterator = ioService.getFileSystems().iterator();
@@ -161,7 +161,7 @@ public class GitIOServiceDotFileTest extends CommonIOExceptionsServiceDotFileTes
     @Override
     public Path getFilePath() {
 
-        final Path file = ioService().get( URI.create( "git://repo-test/myfile" + new Random( 10L ).nextInt() + ".txt" ) );
+        final Path file = ioService().get( URI.create( "git://folder/repo-test/myfile" + new Random( 10L ).nextInt() + ".txt" ) );
         ioService().deleteIfExists( file );
 
         return file;
@@ -169,7 +169,7 @@ public class GitIOServiceDotFileTest extends CommonIOExceptionsServiceDotFileTes
 
     @Override
     public Path getTargetPath() {
-        final Path file = ioService().get( URI.create( "git://repo-test/myTargetFile" + new Random( 10L ).nextInt() + ".txt" ) );
+        final Path file = ioService().get( URI.create( "git://folder/repo-test/myTargetFile" + new Random( 10L ).nextInt() + ".txt" ) );
         ioService().deleteIfExists( file );
 
         return file;
@@ -177,7 +177,7 @@ public class GitIOServiceDotFileTest extends CommonIOExceptionsServiceDotFileTes
 
     @Override
     public Path getDirectoryPath() {
-        final Path dir = ioService().get( URI.create( "git://repo-test/someDir" + new Random( 10L ).nextInt() ) );
+        final Path dir = ioService().get( URI.create( "git://folder/repo-test/someDir" + new Random( 10L ).nextInt() ) );
         ioService().deleteIfExists( dir );
 
         return dir;
@@ -185,11 +185,11 @@ public class GitIOServiceDotFileTest extends CommonIOExceptionsServiceDotFileTes
 
     @Override
     public Path getComposedDirectoryPath() {
-        return ioService().get( URI.create( "git://repo-test/path/to/someNewRandom" + new Random( 10L ).nextInt() ) );
+        return ioService().get( URI.create( "git://folder/repo-test/path/to/someNewRandom" + new Random( 10L ).nextInt() ) );
     }
 
     private Path getRootPath() {
-        return ioService().get( URI.create( "git://repo-test/" ) );
+        return ioService().get( URI.create( "git://folder/repo-test/" ) );
     }
 
     private static boolean created = false;
@@ -201,7 +201,7 @@ public class GitIOServiceDotFileTest extends CommonIOExceptionsServiceDotFileTes
             System.setProperty( "org.uberfire.nio.git.dir", path );
             System.out.println( ".niogit: " + path );
 
-            final URI newRepo = URI.create( "git://repo-test" );
+            final URI newRepo = URI.create( "git://folder/repo-test" );
 
             try {
                 ioService().newFileSystem( newRepo, new HashMap<String, Object>() );

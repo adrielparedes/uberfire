@@ -16,17 +16,13 @@
 
 package org.uberfire.ext.metadata.io;
 
-import static org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil.toKObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -43,6 +39,8 @@ import org.uberfire.io.attribute.DublinCoreView;
 import org.uberfire.java.nio.base.version.VersionAttributeView;
 import org.uberfire.java.nio.file.FileSystemAlreadyExistsException;
 import org.uberfire.java.nio.file.Path;
+
+import static org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil.*;
 
 public abstract class BaseIndexTest {
 
@@ -101,7 +99,7 @@ public abstract class BaseIndexTest {
             System.out.println( ".niogit: " + path );
 
             for ( String repositoryName : getRepositoryNames() ) {
-
+                repositoryName = "test/" + repositoryName;
                 final URI newRepo = URI.create( "git://" + repositoryName );
 
                 try {
@@ -112,11 +110,9 @@ public abstract class BaseIndexTest {
                     basePaths.put( repositoryName,
                                    basePath );
 
-                }
-                catch ( final FileSystemAlreadyExistsException ex ) {
+                } catch ( final FileSystemAlreadyExistsException ex ) {
                     // ignored
-                }
-                finally {
+                } finally {
                     created = true;
                 }
             }

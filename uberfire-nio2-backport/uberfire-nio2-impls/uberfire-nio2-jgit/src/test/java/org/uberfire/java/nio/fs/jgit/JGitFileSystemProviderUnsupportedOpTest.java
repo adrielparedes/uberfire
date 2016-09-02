@@ -31,7 +31,7 @@ public class JGitFileSystemProviderUnsupportedOpTest extends AbstractTestInfra {
 
     @Test
     public void testNewFileSystemUnsupportedOp() {
-        final URI newRepo = URI.create("git://someunsup-repo-name");
+        final URI newRepo = URI.create("git://folder/someunsup-repo-name");
 
         final FileSystem fs = provider.newFileSystem(newRepo, EMPTY_ENV);
 
@@ -46,11 +46,11 @@ public class JGitFileSystemProviderUnsupportedOpTest extends AbstractTestInfra {
 
     @Test
     public void testNewFileChannelUnsupportedOp() {
-        final URI newRepo = URI.create("git://newfcrepo-name");
+        final URI newRepo = URI.create("git://folder/newfcrepo-name");
 
         provider.newFileSystem(newRepo, EMPTY_ENV);
 
-        final Path path = provider.getPath(URI.create("git://newfcrepo-name/file.txt"));
+        final Path path = provider.getPath(URI.create("git://folder/newfcrepo-name/file.txt"));
 
         final Set<? extends OpenOption> options = emptySet();
         try {
@@ -62,11 +62,11 @@ public class JGitFileSystemProviderUnsupportedOpTest extends AbstractTestInfra {
 
     @Test
     public void testNewAsynchronousFileChannelUnsupportedOp() {
-        final URI newRepo = URI.create("git://newasyncrepo-name");
+        final URI newRepo = URI.create("git://folder/newasyncrepo-name");
 
         provider.newFileSystem(newRepo, EMPTY_ENV);
 
-        final Path path = provider.getPath(URI.create("git://newasyncrepo-name/file.txt"));
+        final Path path = provider.getPath(URI.create("git://folder/newasyncrepo-name/file.txt"));
 
         final Set<? extends OpenOption> options = emptySet();
         try {
@@ -78,12 +78,12 @@ public class JGitFileSystemProviderUnsupportedOpTest extends AbstractTestInfra {
 
     @Test
     public void testCreateSymbolicLinkUnsupportedOp() {
-        final URI newRepo = URI.create("git://symbolic-repo-name");
+        final URI newRepo = URI.create("git://folder/symbolic-repo-name");
 
         provider.newFileSystem(newRepo, EMPTY_ENV);
 
-        final Path link = provider.getPath(URI.create("git://symbolic-repo-name/link.lnk"));
-        final Path path = provider.getPath(URI.create("git://symbolic-repo-name/file.txt"));
+        final Path link = provider.getPath(URI.create("git://folder/symbolic-repo-name/link.lnk"));
+        final Path path = provider.getPath(URI.create("git://folder/symbolic-repo-name/file.txt"));
 
         try {
             provider.createSymbolicLink(link, path);
@@ -94,12 +94,12 @@ public class JGitFileSystemProviderUnsupportedOpTest extends AbstractTestInfra {
 
     @Test
     public void testCreateLinkUnsupportedOp() {
-        final URI newRepo = URI.create("git://link-repo-name");
+        final URI newRepo = URI.create("git://folder/link-repo-name");
 
         provider.newFileSystem(newRepo, EMPTY_ENV);
 
-        final Path link = provider.getPath(URI.create("git://link-repo-name/link.lnk"));
-        final Path path = provider.getPath(URI.create("git://link-repo-name/file.txt"));
+        final Path link = provider.getPath(URI.create("git://folder/link-repo-name/link.lnk"));
+        final Path path = provider.getPath(URI.create("git://folder/link-repo-name/file.txt"));
 
         try {
             provider.createLink(link, path);
@@ -110,11 +110,11 @@ public class JGitFileSystemProviderUnsupportedOpTest extends AbstractTestInfra {
 
     @Test
     public void testReadSymbolicLinkUnsupportedOp() {
-        final URI newRepo = URI.create("git://read-link-repo-name");
+        final URI newRepo = URI.create("git://folder/read-link-repo-name");
 
         provider.newFileSystem(newRepo, EMPTY_ENV);
 
-        final Path link = provider.getPath(URI.create("git://read-link-repo-name/link.lnk"));
+        final Path link = provider.getPath(URI.create("git://folder/read-link-repo-name/link.lnk"));
 
         try {
             provider.readSymbolicLink(link);

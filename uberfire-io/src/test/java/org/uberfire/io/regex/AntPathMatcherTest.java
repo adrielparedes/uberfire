@@ -51,7 +51,7 @@ public class AntPathMatcherTest {
         System.setProperty( "org.uberfire.nio.git.dir", path.getAbsolutePath() );
         System.out.println( ".niogit: " + path.getAbsolutePath() );
 
-        final URI newRepo = URI.create( "git://antpathmatcher" );
+        final URI newRepo = URI.create( "git://folder/antpathmatcher" );
 
         FileSystems.newFileSystem( newRepo, new HashMap<String, Object>() );
     }
@@ -59,7 +59,7 @@ public class AntPathMatcherTest {
     @AfterClass
     public static void cleanup() {
         FileUtils.deleteQuietly( path );
-        JGitFileSystemProvider gitFsProvider = (JGitFileSystemProvider) FileSystemProviders.resolveProvider( URI.create( "git://whatever" ) );
+        JGitFileSystemProvider gitFsProvider = (JGitFileSystemProvider) FileSystemProviders.resolveProvider( URI.create( "git://folder/whatever" ) );
         gitFsProvider.shutdown();
         FileUtils.deleteQuietly( gitFsProvider.getGitRepoContainerDir() );
         gitFsProvider.rescanForExistingRepositories();
@@ -78,12 +78,12 @@ public class AntPathMatcherTest {
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://folder/antpathmatcher" ) );
             Assert.assertTrue( includes( patterns, path ) );
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://master@antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://master@folder/antpathmatcher" ) );
             Assert.assertTrue( includes( patterns, path ) );
         }
     }
@@ -101,12 +101,12 @@ public class AntPathMatcherTest {
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://folder/antpathmatcher" ) );
             Assert.assertFalse( includes( patterns, path ) );
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://master@antpathmatcher/repo/sss" ) );
+            final Path path = Paths.get( URI.create( "git://master@folder/antpathmatcher/repo/sss" ) );
             Assert.assertTrue( includes( patterns, path ) );
         }
     }
@@ -124,12 +124,12 @@ public class AntPathMatcherTest {
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://folder/antpathmatcher" ) );
             Assert.assertTrue( excludes( patterns, path ) );
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://master@antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://master@folder/antpathmatcher" ) );
             Assert.assertTrue( excludes( patterns, path ) );
         }
     }
@@ -147,12 +147,12 @@ public class AntPathMatcherTest {
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://folder/antpathmatcher" ) );
             Assert.assertFalse( excludes( patterns, path ) );
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://master@antpathmatcher/repo/sss" ) );
+            final Path path = Paths.get( URI.create( "git://master@folder/antpathmatcher/repo/sss" ) );
             Assert.assertTrue( excludes( patterns, path ) );
         }
     }
@@ -172,31 +172,31 @@ public class AntPathMatcherTest {
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://antpathmatcher" ) );
+            final Path path = Paths.get( URI.create( "git://folder/antpathmatcher" ) );
             Assert.assertTrue( filter( includes, excludes, path ) );
         }
 
         {
-            final Path path = Paths.get( URI.create( "git://master@antpathmatcher/repo/sss" ) );
+            final Path path = Paths.get( URI.create( "git://master@folder/antpathmatcher/repo/sss" ) );
             Assert.assertTrue( filter( includes, excludes, path ) );
         }
 
-        Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), Paths.get( URI.create( "git://master@antpathmatcher/repo/sss" ) ) ) );
-        Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), Paths.get( URI.create( "git://antpathmatcher" ) ) ) );
+        Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), Paths.get( URI.create( "git://master@folder/antpathmatcher/repo/sss" ) ) ) );
+        Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), Paths.get( URI.create( "git://folder/antpathmatcher" ) ) ) );
     }
 
     @Test
     public void testIncludesUri() {
         final Collection<String> patterns = new ArrayList<String>() {{
-            add( "git://**" );
+            add( "git://folder/**" );
             add( "**/repo/**" );
         }};
 
         Assert.assertFalse( includes( patterns, URI.create( "file:///Users/home" ) ) );
 
-        Assert.assertTrue( includes( patterns, URI.create( "git://antpathmatcher" ) ) );
+        Assert.assertTrue( includes( patterns, URI.create( "git://folder/antpathmatcher" ) ) );
 
-        Assert.assertTrue( includes( patterns, URI.create( "git://master@antpathmatcher" ) ) );
+        Assert.assertTrue( includes( patterns, URI.create( "git://folder/master@antpathmatcher" ) ) );
     }
 
     @Test
@@ -208,23 +208,23 @@ public class AntPathMatcherTest {
 
         Assert.assertTrue( includes( patterns, URI.create( "file:///Users/home" ) ) );
 
-        Assert.assertFalse( includes( patterns, URI.create( "git://antpathmatcher" ) ) );
+        Assert.assertFalse( includes( patterns, URI.create( "git://folder/antpathmatcher" ) ) );
 
-        Assert.assertTrue( includes( patterns, URI.create( "git://master@antpathmatcher/repo/sss" ) ) );
+        Assert.assertTrue( includes( patterns, URI.create( "git://folder/master@antpathmatcher/repo/sss" ) ) );
     }
 
     @Test
     public void testExcludesUri() {
         final Collection<String> patterns = new ArrayList<String>() {{
-            add( "git://**" );
+            add( "git://folder/**" );
             add( "**/repo/**" );
         }};
 
         Assert.assertFalse( excludes( patterns, URI.create( "file:///Users/home" ) ) );
 
-        Assert.assertTrue( excludes( patterns, URI.create( "git://antpathmatcher" ) ) );
+        Assert.assertTrue( excludes( patterns, URI.create( "git://folder/antpathmatcher" ) ) );
 
-        Assert.assertTrue( excludes( patterns, URI.create( "git://master@antpathmatcher" ) ) );
+        Assert.assertTrue( excludes( patterns, URI.create( "git://folder/master@antpathmatcher" ) ) );
     }
 
     @Test
@@ -236,15 +236,15 @@ public class AntPathMatcherTest {
 
         Assert.assertTrue( excludes( patterns, URI.create( "file:///Users/home" ) ) );
 
-        Assert.assertFalse( excludes( patterns, URI.create( "git://antpathmatcher" ) ) );
+        Assert.assertFalse( excludes( patterns, URI.create( "git://folder/antpathmatcher" ) ) );
 
-        Assert.assertTrue( excludes( patterns, URI.create( "git://master@antpathmatcher/repo/sss" ) ) );
+        Assert.assertTrue( excludes( patterns, URI.create( "git://folder/master@antpathmatcher/repo/sss" ) ) );
     }
 
     @Test
     public void testFilterUri() {
         final Collection<String> includes = new ArrayList<String>() {{
-            add( "git://**" );
+            add( "git://folder/**" );
         }};
         final Collection<String> excludes = new ArrayList<String>() {{
             add( "file://**" );
@@ -252,13 +252,13 @@ public class AntPathMatcherTest {
 
         Assert.assertFalse( filter( includes, excludes, URI.create( "file:///Users/home" ) ) );
 
-        Assert.assertTrue( filter( includes, excludes, URI.create( "git://antpathmatcher" ) ) );
+        Assert.assertTrue( filter( includes, excludes, URI.create( "git://folder/antpathmatcher" ) ) );
 
-        Assert.assertTrue( filter( includes, excludes, URI.create( "git://master@antpathmatcher/repo/sss" ) ) );
+        Assert.assertTrue( filter( includes, excludes, URI.create( "git://folder/master@antpathmatcher/repo/sss" ) ) );
 
         Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), URI.create( "file:///Users/home" ) ) );
 
-        Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), URI.create( "git://master@antpathmatcher/repo/sss" ) ) );
+        Assert.assertTrue( filter( Collections.<String>emptyList(), Collections.<String>emptyList(), URI.create( "git://folder/master@antpathmatcher/repo/sss" ) ) );
 
     }
 }

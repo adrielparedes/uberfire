@@ -59,10 +59,10 @@ public class FileSystemTestingUtils {
 
     private void setupJGitRepository() {
         System.setProperty( "org.uberfire.nio.git.dir", path.getAbsolutePath() );
-        final URI newRepo = URI.create( "git://amend-repo-test" );
+        final URI newRepo = URI.create( "git://test/amend-repo-test" );
 
         fileSystem = ioService.newFileSystem( newRepo, new HashMap<String, Object>() );
-        Path init = ioService.get( URI.create( "git://amend-repo-test/init.file" ) );
+        Path init = ioService.get( URI.create( "git://test/amend-repo-test/init.file" ) );
         ioService.write( init, "setupFS!" );
     }
 

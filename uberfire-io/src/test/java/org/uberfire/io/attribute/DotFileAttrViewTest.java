@@ -54,7 +54,7 @@ public class DotFileAttrViewTest {
 
     @Test
     public void testDotFileAttrAccess() throws IOException {
-        final URI newRepo = URI.create( "git://" + new Date().getTime() + "-repo-test" );
+        final URI newRepo = URI.create( "git://folder/" + new Date().getTime() + "-repo-test" );
         ioService().newFileSystem( newRepo, new HashMap<String, Object>() );
 
         final Path dir = ioService().get( newRepo );
@@ -154,7 +154,7 @@ public class DotFileAttrViewTest {
             System.setProperty( "org.uberfire.nio.git.dir", path );
             System.out.println( ".niogit: " + path );
 
-            final URI newRepo = URI.create( "git://repo-test" );
+            final URI newRepo = URI.create( "git://folder/repo-test" );
 
             try {
                 ioService().newFileSystem( newRepo, new HashMap<String, Object>() );

@@ -36,16 +36,16 @@ public class IOSearchServiceImplTest extends BaseIndexTest {
     public void testFullTextSearch() throws IOException, InterruptedException {
 
         final IOSearchServiceImpl searchIndex = new IOSearchServiceImpl( config.getSearchIndex(), ioService() );
-
-        final Path path1 = getBasePath( this.getClass().getSimpleName() ).resolve( "g.txt" );
+        String repositoryName = "test/" + this.getClass().getSimpleName();
+        final Path path1 = getBasePath( repositoryName ).resolve( "g.txt" );
         ioService().write( path1,
                            "ooooo!" );
 
-        final Path path2 = getBasePath( this.getClass().getSimpleName() ).resolve( "a.txt" );
+        final Path path2 = getBasePath( repositoryName ).resolve( "a.txt" );
         ioService().write( path2,
                            "ooooo!" );
 
-        final Path path3 = getBasePath( this.getClass().getSimpleName() ).resolve( "the.txt" );
+        final Path path3 = getBasePath( repositoryName ).resolve( "the.txt" );
         ioService().write( path3,
                            "ooooo!" );
 

@@ -90,7 +90,7 @@ public class LuceneFullTextSearchIndexTest extends BaseIndexTest {
 
         @Override
         public String getId() {
-            return delegate.getId()+"-refactoring";
+            return delegate.getId() + "-refactoring";
         }
 
         @Override
@@ -138,7 +138,7 @@ public class LuceneFullTextSearchIndexTest extends BaseIndexTest {
 
     @Test
     public void testFullTextIndexedFile() throws IOException, InterruptedException {
-        final Path path1 = getBasePath( this.getClass().getSimpleName() ).resolve( "mydrlfile1.drl" );
+        final Path path1 = getBasePath( "test/" + this.getClass().getSimpleName() ).resolve( "mydrlfile1.drl" );
         ioService().write( path1,
                            "Some cheese" );
 
@@ -174,8 +174,7 @@ public class LuceneFullTextSearchIndexTest extends BaseIndexTest {
                           hits.length );
         }
 
-
-        final Path path2 = getBasePath( this.getClass().getSimpleName() ).resolve( "a.drl" );
+        final Path path2 = getBasePath( "test/" + this.getClass().getSimpleName() ).resolve( "a.drl" );
         ioService().write( path2,
                            "Some cheese" );
 

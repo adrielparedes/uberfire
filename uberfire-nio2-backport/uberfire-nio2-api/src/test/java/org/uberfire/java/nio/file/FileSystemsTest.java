@@ -60,11 +60,11 @@ public class FileSystemsTest {
         env.put( "userName", "user" );
         env.put( "password", "pass" );
 
-        final FileSystem fs = FileSystems.newFileSystem( URI.create( "git://my-test" ), env );
+        final FileSystem fs = FileSystems.newFileSystem( URI.create( "git://test/my-test" ), env );
 
         assertThat( fs ).isNotNull();
 
-        final FileSystem newFS = FileSystems.newFileSystem( JGitPathImpl.create( (JGitFileSystem) fs, "new_test", "my-other-test", false ), null );
+        final FileSystem newFS = FileSystems.newFileSystem( JGitPathImpl.create( (JGitFileSystem) fs, "new_test", "folder/my-other-test", false ), null );
 
         assertThat( newFS ).isNotNull();
     }
@@ -76,9 +76,9 @@ public class FileSystemsTest {
         env.put( "userName", "user" );
         env.put( "password", "pass" );
 
-        FileSystems.newFileSystem( URI.create( "git://test" ), env );
+        FileSystems.newFileSystem( URI.create( "git://folder/test" ), env );
 
-        FileSystems.newFileSystem( URI.create( "git://test" ), env );
+        FileSystems.newFileSystem( URI.create( "git://folder/test" ), env );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -94,7 +94,7 @@ public class FileSystemsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void newFileSystemNull2() {
-        FileSystems.newFileSystem( URI.create( "jgit:///test" ), null );
+        FileSystems.newFileSystem( URI.create( "jgit:///folder/test" ), null );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -109,12 +109,12 @@ public class FileSystemsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void newFileSystemNull5() {
-        FileSystems.newFileSystem( URI.create( "jgit:///test" ), null, null );
+        FileSystems.newFileSystem( URI.create( "jgit:///folder/test" ), null, null );
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void newFileSystemNull6() {
-        FileSystems.newFileSystem( URI.create( "jgit:///test" ), null, null );
+        FileSystems.newFileSystem( URI.create( "jgit:///folder/test" ), null, null );
     }
 
     @Test(expected = IllegalArgumentException.class)

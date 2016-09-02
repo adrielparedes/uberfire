@@ -31,7 +31,7 @@ public class JGitFileSystemProviderGCTest extends AbstractTestInfra {
 
     @Test
     public void testGC() throws IOException {
-        final URI newRepo = URI.create( "git://gc-repo-name" );
+        final URI newRepo = URI.create( "git://folder/gc-repo-name" );
 
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
 
@@ -49,7 +49,7 @@ public class JGitFileSystemProviderGCTest extends AbstractTestInfra {
         for ( int i = 0; i < 19; i++ ) {
             assertThat( fs.getNumberOfCommitsSinceLastGC() ).isEqualTo( i );
 
-            final Path path = provider.getPath( URI.create( "git://gc-repo-name/path/to/myfile" + i + ".txt" ) );
+            final Path path = provider.getPath( URI.create( "git://folder/gc-repo-name/path/to/myfile" + i + ".txt" ) );
 
             final OutputStream outStream = provider.newOutputStream( path );
             assertThat( outStream ).isNotNull();
@@ -57,7 +57,7 @@ public class JGitFileSystemProviderGCTest extends AbstractTestInfra {
             outStream.close();
         }
 
-        final Path path = provider.getPath( URI.create( "git://gc-repo-name/path/to/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://folder/gc-repo-name/path/to/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();

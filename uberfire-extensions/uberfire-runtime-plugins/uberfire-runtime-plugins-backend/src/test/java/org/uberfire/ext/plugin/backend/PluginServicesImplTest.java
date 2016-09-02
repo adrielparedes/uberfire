@@ -217,7 +217,7 @@ public class PluginServicesImplTest {
             frameworks.add( framework );
         }
 
-        return new PluginSimpleContent( name, type, PathFactory.newPath( type.name().toLowerCase() + ".plugin", "git://amend-repo-test/" + name + "/" + type.name().toLowerCase() + ".plugin" ), null, null, new HashMap<CodeType, String>(), frameworks, null );
+        return new PluginSimpleContent( name, type, PathFactory.newPath( type.name().toLowerCase() + ".plugin", "git://test/amend-repo-test/" + name + "/" + type.name().toLowerCase() + ".plugin" ), null, null, new HashMap<CodeType, String>(), frameworks, null );
     }
 
     private boolean contains( Collection<RuntimePlugin> runtimePlugins,

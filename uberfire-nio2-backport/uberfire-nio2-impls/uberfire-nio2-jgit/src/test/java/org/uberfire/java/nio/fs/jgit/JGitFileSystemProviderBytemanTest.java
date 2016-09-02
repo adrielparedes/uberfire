@@ -56,14 +56,14 @@ public class JGitFileSystemProviderBytemanTest extends AbstractTestInfra {
     @BMScript(value = "byteman/squash_lock.btm")
     public void testConcurrentLocking() throws IOException, GitAPIException {
 
-        final URI newRepo = URI.create( "git://byteman-lock-squash-repo" );
+        final URI newRepo = URI.create( "git://folder/byteman-lock-squash-repo" );
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
         final CyclicBarrier threadsFinishedBarrier = new CyclicBarrier( 3 );
 
         final Thread t = new Thread( () -> {
 
-            final Path master = provider.getPath( URI.create( "git://master@byteman-lock-squash-repo" ) );
-            final RevCommit commit = commitThreeTimesAndGetReference( fs, "byteman-lock-squash-repo", "master", "t1" );
+            final Path master = provider.getPath( URI.create( "git://master@folder/byteman-lock-squash-repo" ) );
+            final RevCommit commit = commitThreeTimesAndGetReference( fs, "folder/byteman-lock-squash-repo", "master", "t1" );
 
             Thread t1 = new Thread( () -> {
                 logger.info( "<<<<<<<<<<<<< " + commit.getName() + " --- " + commit.getFullMessage() );
@@ -111,12 +111,12 @@ public class JGitFileSystemProviderBytemanTest extends AbstractTestInfra {
     @Test
     @BMScript(value = "byteman/squash.btm")
     public void testConcurrentSquashWithThreeCommit() throws IOException, GitAPIException {
-        final URI newRepo = URI.create( "git://three-squash-repo" );
+        final URI newRepo = URI.create( "git://folder/three-squash-repo" );
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
 
         final CyclicBarrier threadsFinishedBarrier = new CyclicBarrier( 3 );
-        final Path master = provider.getPath( URI.create( "git://three-squash-repo" ) );
-        final RevCommit commit = commitThreeTimesAndGetReference( fs, "three-squash-repo", "master", "t1" );
+        final Path master = provider.getPath( URI.create( "git://folder/three-squash-repo" ) );
+        final RevCommit commit = commitThreeTimesAndGetReference( fs, "folder/three-squash-repo", "master", "t1" );
 
         Thread t1 = new Thread( () -> {
             logger.info( "<<<<<<<<<<<<< COMMIT TO SQUASH " + commit.getName() + " --- " + commit.getFullMessage() );
@@ -154,12 +154,12 @@ public class JGitFileSystemProviderBytemanTest extends AbstractTestInfra {
     @Test
     @BMScript(value = "byteman/squash.btm")
     public void testConcurrentSquashWithSixCommit() throws IOException, GitAPIException {
-        final URI newRepo = URI.create( "git://byteman-six-squash-repo" );
+        final URI newRepo = URI.create( "git://folder/byteman-six-squash-repo" );
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
 
         final CyclicBarrier threadsFinishedBarrier = new CyclicBarrier( 3 );
-        final Path master = provider.getPath( URI.create( "git://master@byteman-six-squash-repo" ) );
-        final RevCommit commit = commitSixTimesAndGetReference( fs, "byteman-six-squash-repo", "master", "t1" );
+        final Path master = provider.getPath( URI.create( "git://master@folder/byteman-six-squash-repo" ) );
+        final RevCommit commit = commitSixTimesAndGetReference( fs, "folder/byteman-six-squash-repo", "master", "t1" );
 
         Thread t1 = new Thread( () -> {
             logger.info( "<<<<<<<<<<<<< COMMIT TO SQUASH " + commit.getName() + " --- " + commit.getFullMessage() );
@@ -198,11 +198,11 @@ public class JGitFileSystemProviderBytemanTest extends AbstractTestInfra {
     @BMScript(value = "byteman/squash_exception.btm")
     public void testForceExceptionWhenTryingToSquash() throws IOException, GitAPIException {
 
-        final URI newRepo = URI.create( "git://byteman-exception-squash-repo" );
+        final URI newRepo = URI.create( "git://folder/byteman-exception-squash-repo" );
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path master = provider.getPath( URI.create( "git://master@byteman-exception-squash-repo" ) );
-        final RevCommit commit = commitThreeTimesAndGetReference( fs, "byteman-exception-squash-repo", "master", "t1" );
+        final Path master = provider.getPath( URI.create( "git://master@folder/byteman-exception-squash-repo" ) );
+        final RevCommit commit = commitThreeTimesAndGetReference( fs, "folder/byteman-exception-squash-repo", "master", "t1" );
 
         logger.info( "<<<<<<<<<<<<< COMMIT TO SQUASH " + commit.getName() + " --- " + commit.getFullMessage() );
         printLog( fs.gitRepo() );
