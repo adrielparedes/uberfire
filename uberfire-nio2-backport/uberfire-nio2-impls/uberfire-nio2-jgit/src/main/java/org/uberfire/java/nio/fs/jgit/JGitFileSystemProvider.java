@@ -19,7 +19,6 @@ package org.uberfire.java.nio.fs.jgit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.FilterOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -461,19 +460,14 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
      */
     public final void rescanForExistingRepositories() {
         fileSystems.clear();
-        final String[] repos = gitReposParentDir.list( new FilenameFilter() {
-            @Override
-            public boolean accept( final File dir,
-                                   String name ) {
-                return name.endsWith( DOT_GIT_EXT );
-            }
-        } );
+        final Map<String, String> repos = getRepositories( gitReposParentDir );
         if ( repos != null ) {
-            for ( final String repo : repos ) {
-                final File repoDir = new File( gitReposParentDir, repo );
+            for ( Map.Entry<String, String> repo : repos.entrySet() ) {
+                final File repoDir = new File( gitReposParentDir, repo.getKey() + "/" + repo.getValue() );
                 try {
                     if ( repoDir.isDirectory() ) {
-                        final String name = repoDir.getName().substring( 0, repoDir.getName().indexOf( DOT_GIT_EXT ) );
+//                        final String name = repoDir.getName().substring( 0, repoDir.getName().indexOf( DOT_GIT_EXT ) );
+                        final String name = repo.getKey() + "/" + repo.getValue().substring( 0, repo.getValue().indexOf( DOT_GIT_EXT ) );
                         //Default to ListMode of null to avoid indexing scanning remote branches. Ideally the ListMode should
                         //be identical to that used when the original JGitFileSystem was created however that information is not
                         //persisted. Using a default of null rather than ALL is a safer default as *all* GIT repositories created
@@ -491,6 +485,40 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
                     LOG.error( "Not registering " + repoDir + " as a GIT filesystem failed", ex );
                 }
             }
+        }
+    }
+
+    private Map<String, String> getRepositories( File root ) {
+        final String[] firtLevelDirectories = root.list( ( file, s ) -> {
+            s.endsWith( DOT_GIT_EXT );
+            return true;
+        } );
+
+        if ( firtLevelDirectories == null ) {
+            return new HashMap<String, String>();
+        } else {
+            Map<String, String> repositories = new HashMap<>();
+            Arrays
+                    .asList( firtLevelDirectories )
+                    .stream()
+                    .forEach( ( dir ) -> {
+                                  final File subRoot = new File( root.getPath() + "/" + dir );
+                                  final String[] repos = subRoot.list( ( file, name ) -> {
+                                      return name.endsWith( DOT_GIT_EXT );
+                                  } );
+                                  if ( repos != null ) {
+                                      Arrays.asList( repos )
+                                              .stream()
+                                              .forEach( ( repo ) -> {
+                                                  repositories.put( dir, repo );
+                                              } );
+
+                                  }
+                              }
+                    );
+
+            return repositories;
+
         }
     }
 
@@ -808,7 +836,7 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
             throw new FileSystemNotFoundException( "No filesystem for uri (" + uri + ") found." );
         }
 
-        return JGitPathImpl.create( fileSystem, extractPath( uri ), extractRepoName( uri ), false );
+        return JGitPathImpl.create( fileSystem, extractPath( uri ), extractHost( uri ), false );
     }
 
     @Override
@@ -1893,32 +1921,54 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
 
     }
 
-    private String extractHost( final URI uri ) {
+    public String extractHost( final URI uri ) {
         checkNotNull( "uri", uri );
-
-        int atIndex = uri.getPath().indexOf( "@" );
+        String host = uri.getAuthority();
+        String path = uri.getPath();
+        int atIndex = path.indexOf( "@" );
         if ( atIndex != -1 && !uri.getAuthority().contains( "@" ) ) {
-            return uri.getAuthority() + uri.getPath().substring( 0, uri.getPath().indexOf( "/", atIndex ) );
+            return host + path.substring( 0, path.indexOf( "/", path.indexOf( "/", atIndex ) + 1 ) );
+        } else {
+
+            int secondSlash = path.indexOf( "/", 1 );
+            if ( secondSlash != -1 ) {
+                return host + path.substring( 0, path.indexOf( "/", 1 ) );
+            } else {
+                return host + path;
+            }
         }
 
-        return uri.getAuthority();
     }
 
-    private String extractRepoName( final URI uri ) {
+    public String extractRepoName( final URI uri ) {
         checkNotNull( "uri", uri );
-
         String host = extractHost( uri );
-
         int index = host.indexOf( '@' );
         if ( index != -1 ) {
-            return host.substring( index + 1 );
+            host = host.substring( index + 1 );
+        }
+        String path = uri.getPath();
+
+        String complex = "@" + host;
+        int pathIndex = path.indexOf( complex );
+        if ( pathIndex != -1 ) {
+            path = path.substring( pathIndex + complex.length() );
         }
 
-        if ( uri.getPath() != null ) {
-            host = host + uri.getPath();
+        if ( path.equals( "/" ) ) {
+            throw new IllegalArgumentException( "Repository not found for group '" + host + "'" );
         }
+        int firstSlash = path.indexOf( "/" );
+        String repo = path.substring( firstSlash + 1 );
+        int secondSlash = repo.indexOf( "/" );
+        if ( secondSlash > 0 ) {
+            repo = repo.substring( 0, secondSlash );
+
+        }
+        checkNotEmpty( "repository", repo );
 
         return host;
+
     }
 
     private boolean hasSyncFlag( final URI uri ) {
@@ -1958,12 +2008,25 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
         }};
     }
 
-    private String extractPath( final URI uri ) {
+    public String extractPath( final URI uri ) {
         checkNotNull( "uri", uri );
 
         final String repoName = extractRepoName( uri );
 
-        final String path = EncodingUtil.decode( uri.toString() ).substring( getSchemeSize( uri ) + repoName.length() );
+        int authority = 0;
+        int index = uri.getAuthority().indexOf( "@" );
+
+        if ( index > 0 ) {
+            authority = uri.getAuthority().substring( 0, index + 1 ).length();
+        }
+
+        int secondIndex = uri.getPath().indexOf( "@" );
+        if ( secondIndex != -1 ) {
+            authority = uri.getAuthority().length();
+            authority = authority + uri.getPath().substring( 0, secondIndex + 1 ).length();
+        }
+
+        final String path = EncodingUtil.decode( uri.toString() ).substring( getSchemeSize( uri ) + authority + repoName.length() );
 
         if ( path.startsWith( "/:" ) ) {
             return path.substring( 2 );

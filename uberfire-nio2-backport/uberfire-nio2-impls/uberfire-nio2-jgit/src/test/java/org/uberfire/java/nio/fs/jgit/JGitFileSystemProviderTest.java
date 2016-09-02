@@ -121,7 +121,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testNewFileSystem() {
-        final URI newRepo = URI.create( "git://repo-name" );
+        final URI newRepo = URI.create( "git://folder/repo-name" );
 
         final FileSystem fs = provider.newFileSystem( newRepo, EMPTY_ENV );
 
@@ -136,7 +136,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         } catch ( final Exception ignored ) {
         }
 
-        provider.newFileSystem( URI.create( "git://repo-name2" ), EMPTY_ENV );
+        provider.newFileSystem( URI.create( "git://folder/repo-name2" ), EMPTY_ENV );
     }
 
     @Test
@@ -153,7 +153,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testNewFileSystemInited() {
-        final URI newRepo = URI.create( "git://init-repo-name" );
+        final URI newRepo = URI.create( "git://folder/init-repo-name" );
 
         final Map<String, ?> env = new HashMap<String, Object>() {{
             put( "init", Boolean.TRUE );
@@ -169,7 +169,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testInvalidURINewFileSystem() {
-        final URI newRepo = URI.create( "git:///repo-name" );
+        final URI newRepo = URI.create( "git:///folder/repo-name" );
 
         try {
             provider.newFileSystem( newRepo, EMPTY_ENV );
@@ -183,7 +183,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     public void
     testNewFileSystemClone() throws IOException {
 
-        final URI originRepo = URI.create( "git://my-simple-test-origin-name" );
+        final URI originRepo = URI.create( "git://folder/my-simple-test-origin-name" );
 
         final JGitFileSystem origin = (JGitFileSystem) provider.newFileSystem( originRepo, new HashMap<String, Object>() {{
             put( "listMode", "ALL" );
@@ -193,10 +193,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "file.txt", tempFile( "temp" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://my-repo-name" );
+        final URI newRepo = URI.create( "git://folder/my-repo-name" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
-            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/my-simple-test-origin-name" );
+            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-name" );
             put( "listMode", "ALL" );
         }};
 
@@ -212,7 +212,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "fileXXXXX.txt", tempFile( "temp" ) );
         }} );
 
-        provider.getFileSystem( URI.create( "git://my-repo-name?sync=git://localhost:" + gitDaemonPort + "/my-simple-test-origin-name&force" ) );
+        provider.getFileSystem( URI.create( "git://folder/my-repo-name?sync=git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-name&force" ) );
 
         assertThat( fs ).isNotNull();
 
@@ -232,7 +232,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "fileYYYY.txt", tempFile( "tempYYYY" ) );
         }} );
 
-        provider.getFileSystem( URI.create( "git://my-repo-name?sync=git://localhost:" + gitDaemonPort + "/my-simple-test-origin-name&force" ) );
+        provider.getFileSystem( URI.create( "git://folder/my-repo-name?sync=git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-name&force" ) );
 
         assertThat( fs.getRootDirectories() ).hasSize( 3 );
 
@@ -250,7 +250,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     @Test
     public void testNewFileSystemCloneAndPush() throws IOException {
 
-        final URI originRepo = URI.create( "git://my-simple-test-origin-repo" );
+        final URI originRepo = URI.create( "git://folder/my-simple-test-origin-repo" );
 
         final JGitFileSystem origin = (JGitFileSystem) provider.newFileSystem( originRepo, new HashMap<String, Object>() {{
             put( "listMode", "ALL" );
@@ -260,10 +260,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "file.txt", tempFile( "temp" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://my-repo" );
+        final URI newRepo = URI.create( "git://folder/my-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
-            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/my-simple-test-origin-repo" );
+            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-repo" );
             put( "listMode", "ALL" );
         }};
 
@@ -279,10 +279,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "fileXXXXX.txt", tempFile( "temp" ) );
         }} );
 
-        final URI newRepo2 = URI.create( "git://my-repo2" );
+        final URI newRepo2 = URI.create( "git://folder/my-repo2" );
 
         final Map<String, Object> env2 = new HashMap<String, Object>() {{
-            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/my-simple-test-origin-repo" );
+            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-repo" );
             put( "listMode", "ALL" );
         }};
 
@@ -292,26 +292,26 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "file1UserBranch.txt", tempFile( "tempX" ) );
         }} );
 
-        provider.getFileSystem( URI.create( "git://my-repo2?sync=git://localhost:" + gitDaemonPort + "/my-simple-test-origin-repo&force" ) );
+        provider.getFileSystem( URI.create( "git://folder/my-repo2?sync=git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-repo&force" ) );
 
         assertThat( fs2.getRootDirectories() ).hasSize( 5 );
 
         final List<String> rootURIs1 = new ArrayList<String>() {{
-            add( "git://master@my-repo2/" );
-            add( "git://user-branch@my-repo2/" );
-            add( "git://origin/master@my-repo2/" );
-            add( "git://upstream/master@my-repo2/" );
-            add( "git://upstream/user-branch@my-repo2/" );
+            add( "git://master@folder/my-repo2/" );
+            add( "git://user-branch@folder/my-repo2/" );
+            add( "git://origin/master@folder/my-repo2/" );
+            add( "git://upstream/master@folder/my-repo2/" );
+            add( "git://upstream/user-branch@folder/my-repo2/" );
         }};
 
         final List<String> rootURIs2 = new ArrayList<String>() {{
-            add( "git://master@my-repo2/" );
-            add( "git://user-branch@my-repo2/" );
-            add( "git://user-branch-2@my-repo2/" );
-            add( "git://origin/master@my-repo2/" );
-            add( "git://upstream/master@my-repo2/" );
-            add( "git://upstream/user-branch@my-repo2/" );
-            add( "git://upstream/user-branch-2@my-repo2/" );
+            add( "git://master@folder/my-repo2/" );
+            add( "git://user-branch@folder/my-repo2/" );
+            add( "git://user-branch-2@folder/my-repo2/" );
+            add( "git://origin/master@folder/my-repo2/" );
+            add( "git://upstream/master@folder/my-repo2/" );
+            add( "git://upstream/user-branch@folder/my-repo2/" );
+            add( "git://upstream/user-branch-2@folder/my-repo2/" );
         }};
 
         final Set<String> rootURIs = new HashSet<String>();
@@ -327,7 +327,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "file2UserBranch.txt", tempFile( "tempX" ) );
         }} );
 
-        provider.getFileSystem( URI.create( "git://my-repo2?sync=git://localhost:" + gitDaemonPort + "/my-simple-test-origin-repo&force" ) );
+        provider.getFileSystem( URI.create( "git://folder/my-repo2?sync=git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-repo&force" ) );
 
         assertThat( fs2.getRootDirectories() ).hasSize( 7 );
 
@@ -343,7 +343,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     @Test
     public void testNewFileSystemCloneAndRescan() throws IOException {
 
-        final URI originRepo = URI.create( "git://my-simple-test-origin-name" );
+        final URI originRepo = URI.create( "git://folder/my-simple-test-origin-name" );
 
         final JGitFileSystem origin = (JGitFileSystem) provider.newFileSystem( originRepo, new HashMap<String, Object>() {{
             put( "listMode", "ALL" );
@@ -353,10 +353,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "file.txt", tempFile( "temp" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://my-repo-name" );
+        final URI newRepo = URI.create( "git://folder/my-repo-name" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
-            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/my-simple-test-origin-name" );
+            put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, "git://localhost:" + gitDaemonPort + "/folder/my-simple-test-origin-name" );
         }};
 
         final FileSystem fs = provider.newFileSystem( newRepo, env );
@@ -376,22 +376,22 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testGetFileSystem() {
-        final URI newRepo = URI.create( "git://new-repo-name" );
+        final URI newRepo = URI.create( "git://folder/new-repo-name" );
 
         final FileSystem fs = provider.newFileSystem( newRepo, EMPTY_ENV );
 
         assertThat( fs ).isNotNull();
 
         assertThat( provider.getFileSystem( newRepo ) ).isEqualTo( fs );
-        assertThat( provider.getFileSystem( URI.create( "git://master@new-repo-name" ) ) ).isEqualTo( fs );
-        assertThat( provider.getFileSystem( URI.create( "git://branch@new-repo-name" ) ) ).isEqualTo( fs );
+        assertThat( provider.getFileSystem( URI.create( "git://master@folder/new-repo-name" ) ) ).isEqualTo( fs );
+        assertThat( provider.getFileSystem( URI.create( "git://branch@folder/new-repo-name" ) ) ).isEqualTo( fs );
 
-        assertThat( provider.getFileSystem( URI.create( "git://branch@new-repo-name?fetch" ) ) ).isEqualTo( fs );
+        assertThat( provider.getFileSystem( URI.create( "git://branch@folder/new-repo-name?fetch" ) ) ).isEqualTo( fs );
     }
 
     @Test
     public void testInvalidURIGetFileSystem() {
-        final URI newRepo = URI.create( "git:///new-repo-name" );
+        final URI newRepo = URI.create( "git:///folder/new-repo-name" );
 
         try {
             provider.getFileSystem( newRepo );
@@ -404,20 +404,20 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testGetPath() {
-        final URI newRepo = URI.create( "git://new-get-repo-name" );
+        final URI newRepo = URI.create( "git://folder/new-get-repo-name" );
 
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@new-get-repo-name/home" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/new-get-repo-name/home" ) );
 
         assertThat( path ).isNotNull();
         assertThat( path.getRoot().toString() ).isEqualTo( "/" );
-        assertThat( path.getRoot().toRealPath().toUri().toString() ).isEqualTo( "git://master@new-get-repo-name/" );
+        assertThat( path.getRoot().toRealPath().toUri().toString() ).isEqualTo( "git://master@folder/new-get-repo-name/" );
         assertThat( path.toString() ).isEqualTo( "/home" );
 
-        final Path pathRelative = provider.getPath( URI.create( "git://master@new-get-repo-name/:home" ) );
+        final Path pathRelative = provider.getPath( URI.create( "git://master@folder/new-get-repo-name/:home" ) );
         assertThat( pathRelative ).isNotNull();
-        assertThat( pathRelative.toRealPath().toUri().toString() ).isEqualTo( "git://master@new-get-repo-name/:home" );
+        assertThat( pathRelative.toRealPath().toUri().toString() ).isEqualTo( "git://master@folder/new-get-repo-name/:home" );
         assertThat( pathRelative.getRoot().toString() ).isEqualTo( "" );
         assertThat( pathRelative.toString() ).isEqualTo( "home" );
     }
@@ -436,17 +436,17 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testGetComplexPath() {
-        final URI newRepo = URI.create( "git://new-complex-get-repo-name" );
+        final URI newRepo = URI.create( "git://folder/new-complex-get-repo-name" );
 
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://origin/master@new-complex-get-repo-name/home" ) );
+        final Path path = provider.getPath( URI.create( "git://origin/master@folder/new-complex-get-repo-name/home" ) );
 
         assertThat( path ).isNotNull();
         assertThat( path.getRoot().toString() ).isEqualTo( "/" );
         assertThat( path.toString() ).isEqualTo( "/home" );
 
-        final Path pathRelative = provider.getPath( URI.create( "git://origin/master@new-complex-get-repo-name/:home" ) );
+        final Path pathRelative = provider.getPath( URI.create( "git://origin/master@folder/new-complex-get-repo-name/:home" ) );
         assertThat( pathRelative ).isNotNull();
         assertThat( pathRelative.getRoot().toString() ).isEqualTo( "" );
         assertThat( pathRelative.toString() ).isEqualTo( "home" );
@@ -463,7 +463,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "myfile.txt", tempFile( "temp\n.origin\n.content" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://inputstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/inputstream-test-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, origin.getRepository().getDirectory().toString() );
@@ -473,7 +473,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://origin/master@inputstream-test-repo/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://origin/master@folder/inputstream-test-repo/myfile.txt" ) );
 
         final InputStream inputStream = provider.newInputStream( path );
         assertThat( inputStream ).isNotNull();
@@ -497,7 +497,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "path/to/file/myfile.txt", tempFile( "temp\n.origin\n.content" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://xinputstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/xinputstream-test-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, origin.getRepository().getDirectory().toString() );
@@ -507,7 +507,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://origin/master@xinputstream-test-repo/path/to/file/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://origin/master@folder/xinputstream-test-repo/path/to/file/myfile.txt" ) );
 
         final InputStream inputStream = provider.newInputStream( path );
         assertThat( inputStream ).isNotNull();
@@ -531,7 +531,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "path/to/file/myfile.txt", tempFile( "temp\n.origin\n.content" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://xxinputstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/xxinputstream-test-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, origin.getRepository().getDirectory().toString() );
@@ -541,7 +541,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://origin/master@xxinputstream-test-repo/path/to" ) );
+        final Path path = provider.getPath( URI.create( "git://origin/master@folder/xxinputstream-test-repo/path/to" ) );
 
         provider.newInputStream( path );
     }
@@ -558,7 +558,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "file.txt", tempFile( "temp.origin.content.2" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://inputstream-not-exists-test-repo" );
+        final URI newRepo = URI.create( "git://folder/inputstream-not-exists-test-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, origin.getRepository().getDirectory().toString() );
@@ -568,7 +568,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://origin/master@inputstream-not-exists-test-repo/temp.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://origin/master@folder/inputstream-not-exists-test-repo/temp.txt" ) );
 
         provider.newInputStream( path );
     }
@@ -587,7 +587,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "path/to/some/file/myfile.txt", tempFile( "some\n.content\nhere" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://outstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/outstream-test-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, origin.getRepository().getDirectory().toString() );
@@ -597,7 +597,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@outstream-test-repo/some/path/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/outstream-test-repo/some/path/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
@@ -613,7 +613,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         assertThat( content ).isNotNull().isEqualTo( "my cool content" );
 
         try {
-            provider.newOutputStream( provider.getPath( URI.create( "git://user_branch@outstream-test-repo/some/path/" ) ) );
+            provider.newOutputStream( provider.getPath( URI.create( "git://user_branch@folder/outstream-test-repo/some/path/" ) ) );
             failBecauseExceptionWasNotThrown( org.uberfire.java.nio.IOException.class );
         } catch ( Exception ignored ) {
         }
@@ -633,7 +633,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             put( "path/to/some/file/myfile.txt", tempFile( "some\n.content\nhere" ) );
         }} );
 
-        final URI newRepo = URI.create( "git://outstreamwithop-test-repo" );
+        final URI newRepo = URI.create( "git://folder/outstreamwithop-test-repo" );
 
         final Map<String, Object> env = new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_DEFAULT_REMOTE_NAME, origin.getRepository().getDirectory().toString() );
@@ -647,7 +647,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         final CommentedOption op = new CommentedOption( "User Tester", "user.tester@example.com", "omg, is it the end?", formatter.parse( "31/12/2012" ) );
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@outstreamwithop-test-repo/some/path/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/outstreamwithop-test-repo/some/path/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path, op );
         assertThat( outStream ).isNotNull();
@@ -670,17 +670,17 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test(expected = FileSystemNotFoundException.class)
     public void testGetFileSystemNotExisting() {
-        final URI newRepo = URI.create( "git://not-new-repo-name" );
+        final URI newRepo = URI.create( "git://folder/not-new-repo-name" );
 
         provider.getFileSystem( newRepo );
     }
 
     @Test
     public void testDelete() throws IOException {
-        final URI newRepo = URI.create( "git://delete1-test-repo" );
+        final URI newRepo = URI.create( "git://folder/delete1-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@delete1-test-repo/path/to/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/delete1-test-repo/path/to/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
@@ -690,13 +690,13 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         provider.newInputStream( path ).close();
 
         try {
-            provider.delete( provider.getPath( URI.create( "git://user_branch@delete1-test-repo/non_existent_path" ) ) );
+            provider.delete( provider.getPath( URI.create( "git://user_branch@folder/delete1-test-repo/non_existent_path" ) ) );
             failBecauseExceptionWasNotThrown( NoSuchFileException.class );
         } catch ( NoSuchFileException ignored ) {
         }
 
         try {
-            provider.delete( provider.getPath( URI.create( "git://user_branch@delete1-test-repo/path/to/" ) ) );
+            provider.delete( provider.getPath( URI.create( "git://user_branch@folder/delete1-test-repo/path/to/" ) ) );
             failBecauseExceptionWasNotThrown( DirectoryNotEmptyException.class );
         } catch ( DirectoryNotEmptyException ignored ) {
         }
@@ -713,16 +713,16 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         provider.delete( fsPath );
         assertThat( fsPath.getFileSystem().isOpen() ).isEqualTo( false );
 
-        final URI newRepo2 = URI.create( "git://delete1-test-repo" );
+        final URI newRepo2 = URI.create( "git://folder/delete1-test-repo" );
         provider.newFileSystem( newRepo2, EMPTY_ENV );
     }
 
     @Test
     public void testDeleteBranch() throws IOException {
-        final URI newRepo = URI.create( "git://delete-branch-test-repo" );
+        final URI newRepo = URI.create( "git://folder/delete-branch-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@delete-branch-test-repo/path/to/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/delete-branch-test-repo/path/to/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
@@ -731,16 +731,16 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         provider.newInputStream( path ).close();
 
-        provider.delete( provider.getPath( URI.create( "git://user_branch@delete-branch-test-repo" ) ) );
+        provider.delete( provider.getPath( URI.create( "git://user_branch@folder/delete-branch-test-repo" ) ) );
 
         try {
-            provider.delete( provider.getPath( URI.create( "git://user_branch@delete-branch-test-repo" ) ) );
+            provider.delete( provider.getPath( URI.create( "git://user_branch@folder/delete-branch-test-repo" ) ) );
             failBecauseExceptionWasNotThrown( NoSuchFileException.class );
         } catch ( NoSuchFileException ignored ) {
         }
 
         try {
-            provider.delete( provider.getPath( URI.create( "git://some_user_branch@delete-branch-test-repo" ) ) );
+            provider.delete( provider.getPath( URI.create( "git://some_user_branch@folder/delete-branch-test-repo" ) ) );
             failBecauseExceptionWasNotThrown( NoSuchFileException.class );
         } catch ( NoSuchFileException ignored ) {
         }
@@ -748,10 +748,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testDeleteIfExists() throws IOException {
-        final URI newRepo = URI.create( "git://deleteifexists1-test-repo" );
+        final URI newRepo = URI.create( "git://folder/deleteifexists1-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@deleteifexists1-test-repo/path/to/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/deleteifexists1-test-repo/path/to/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
@@ -760,10 +760,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         provider.newInputStream( path ).close();
 
-        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@deleteifexists1-test-repo/non_existent_path" ) ) ) ).isFalse();
+        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@folder/deleteifexists1-test-repo/non_existent_path" ) ) ) ).isFalse();
 
         try {
-            provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@deleteifexists1-test-repo/path/to/" ) ) );
+            provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@folder/deleteifexists1-test-repo/path/to/" ) ) );
             failBecauseExceptionWasNotThrown( DirectoryNotEmptyException.class );
         } catch ( DirectoryNotEmptyException ignored ) {
         }
@@ -773,10 +773,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testDeleteBranchIfExists() throws IOException {
-        final URI newRepo = URI.create( "git://deletebranchifexists1-test-repo" );
+        final URI newRepo = URI.create( "git://folder/deletebranchifexists1-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@deletebranchifexists1-test-repo/path/to/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/deletebranchifexists1-test-repo/path/to/myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
@@ -785,64 +785,64 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         provider.newInputStream( path ).close();
 
-        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@deletebranchifexists1-test-repo" ) ) ) ).isTrue();
+        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@folder/deletebranchifexists1-test-repo" ) ) ) ).isTrue();
 
-        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://not_user_branch@deletebranchifexists1-test-repo" ) ) ) ).isFalse();
+        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://not_user_branch@folder/deletebranchifexists1-test-repo" ) ) ) ).isFalse();
 
-        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@deletebranchifexists1-test-repo" ) ) ) ).isFalse();
+        assertThat( provider.deleteIfExists( provider.getPath( URI.create( "git://user_branch@folder/deletebranchifexists1-test-repo" ) ) ) ).isFalse();
 
     }
 
     @Test
     public void testIsHidden() throws IOException {
-        final URI newRepo = URI.create( "git://ishidden-test-repo" );
+        final URI newRepo = URI.create( "git://folder/ishidden-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/path/to/.myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/path/to/.myfile.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/path/to/myfile.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/path/to/myfile.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         assertThat( outStream2 ).isNotNull();
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/path/to/.myfile.txt" ) ) ) ).isTrue();
+        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/path/to/.myfile.txt" ) ) ) ).isTrue();
 
-        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/path/to/myfile.txt" ) ) ) ).isFalse();
+        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/path/to/myfile.txt" ) ) ) ).isFalse();
 
-        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/path/to/non_existent/.myfile.txt" ) ) ) ).isTrue();
+        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/path/to/non_existent/.myfile.txt" ) ) ) ).isTrue();
 
-        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/path/to/non_existent/myfile.txt" ) ) ) ).isFalse();
+        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/path/to/non_existent/myfile.txt" ) ) ) ).isFalse();
 
-        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/" ) ) ) ).isFalse();
+        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/" ) ) ) ).isFalse();
 
-        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@ishidden-test-repo/some" ) ) ) ).isFalse();
+        assertThat( provider.isHidden( provider.getPath( URI.create( "git://user_branch@folder/ishidden-test-repo/some" ) ) ) ).isFalse();
     }
 
     @Test
     public void testIsSameFile() throws IOException {
-        final URI newRepo = URI.create( "git://issamefile-test-repo" );
+        final URI newRepo = URI.create( "git://folder/issamefile-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@issamefile-test-repo/path/to/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/issamefile-test-repo/path/to/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@issamefile-test-repo/path/to/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/issamefile-test-repo/path/to/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@issamefile-test-repo/path/to/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/issamefile-test-repo/path/to/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
@@ -855,10 +855,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testCreateDirectory() throws Exception {
-        final URI newRepo = URI.create( "git://xcreatedir-test-repo" );
+        final URI newRepo = URI.create( "git://folder/xcreatedir-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final JGitPathImpl path = (JGitPathImpl) provider.getPath( URI.create( "git://master@xcreatedir-test-repo/some/path/to/" ) );
+        final JGitPathImpl path = (JGitPathImpl) provider.getPath( URI.create( "git://master@folder/xcreatedir-test-repo/some/path/to/" ) );
 
         final Pair<PathType, ObjectId> result = JGitUtil.checkPath( path.getFileSystem().gitRepo(), path.getRefTree(), path.getPath() );
         assertThat( result.getK1() ).isEqualTo( PathType.NOT_FOUND );
@@ -877,10 +877,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testCheckAccess() throws Exception {
-        final URI newRepo = URI.create( "git://checkaccess-test-repo" );
+        final URI newRepo = URI.create( "git://folder/checkaccess-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@checkaccess-test-repo/path/to/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/checkaccess-test-repo/path/to/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
@@ -888,11 +888,11 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         provider.checkAccess( path );
 
-        final Path path_to_dir = provider.getPath( URI.create( "git://master@checkaccess-test-repo/path/to" ) );
+        final Path path_to_dir = provider.getPath( URI.create( "git://master@folder/checkaccess-test-repo/path/to" ) );
 
         provider.checkAccess( path_to_dir );
 
-        final Path path_not_exists = provider.getPath( URI.create( "git://master@checkaccess-test-repo/path/to/some.txt" ) );
+        final Path path_not_exists = provider.getPath( URI.create( "git://master@folder/checkaccess-test-repo/path/to/some.txt" ) );
 
         try {
             provider.checkAccess( path_not_exists );
@@ -903,10 +903,10 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testGetFileStore() throws Exception {
-        final URI newRepo = URI.create( "git://filestore-test-repo" );
+        final URI newRepo = URI.create( "git://folder/filestore-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@filestore-test-repo/path/to/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/filestore-test-repo/path/to/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
@@ -921,40 +921,40 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testNewDirectoryStream() throws IOException {
-        final URI newRepo = URI.create( "git://dirstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/dirstream-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@dirstream-test-repo/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/dirstream-test-repo/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
         outStream3.close();
 
-        final DirectoryStream<Path> stream1 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/" ) ), null );
+        final DirectoryStream<Path> stream1 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/" ) ), null );
 
-        assertThat( stream1 ).isNotNull().hasSize( 2 ).contains( path3, provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/other" ) ) );
+        assertThat( stream1 ).isNotNull().hasSize( 2 ).contains( path3, provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/other" ) ) );
 
-        final DirectoryStream<Path> stream2 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/other" ) ), null );
+        final DirectoryStream<Path> stream2 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/other" ) ), null );
 
-        assertThat( stream2 ).isNotNull().hasSize( 1 ).contains( provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/other/path" ) ) );
+        assertThat( stream2 ).isNotNull().hasSize( 1 ).contains( provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/other/path" ) ) );
 
-        final DirectoryStream<Path> stream3 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@dirstream-test-repo/other/path" ) ), null );
+        final DirectoryStream<Path> stream3 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@folder/dirstream-test-repo/other/path" ) ), null );
 
         assertThat( stream3 ).isNotNull().hasSize( 1 ).contains( path2 );
 
-        final DirectoryStream<Path> stream4 = provider.newDirectoryStream( provider.getPath( URI.create( "git://master@dirstream-test-repo/" ) ), null );
+        final DirectoryStream<Path> stream4 = provider.newDirectoryStream( provider.getPath( URI.create( "git://master@folder/dirstream-test-repo/" ) ), null );
 
         assertThat( stream4 ).isNotNull().hasSize( 1 ).contains( path );
 
@@ -963,7 +963,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             failBecauseExceptionWasNotThrown( NotDirectoryException.class );
         } catch ( NotDirectoryException ignored ) {
         }
-        final Path crazyPath = provider.getPath( URI.create( "git://master@dirstream-test-repo/crazy/path/here" ) );
+        final Path crazyPath = provider.getPath( URI.create( "git://master@folder/dirstream-test-repo/crazy/path/here" ) );
         try {
             provider.newDirectoryStream( crazyPath, null );
             failBecauseExceptionWasNotThrown( NotDirectoryException.class );
@@ -977,36 +977,36 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testDeleteNonEmptyDirectory() throws IOException {
-        final URI newRepo = URI.create( "git://delete-non-empty-test-repo" );
+        final URI newRepo = URI.create( "git://folder/delete-non-empty-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path dir = provider.getPath( URI.create( "git://master@delete-non-empty-test-repo/other/path" ) );
+        final Path dir = provider.getPath( URI.create( "git://master@folder/delete-non-empty-test-repo/other/path" ) );
 
-        final Path _root = provider.getPath( URI.create( "git://master@delete-non-empty-test-repo/myfile1.txt" ) );
+        final Path _root = provider.getPath( URI.create( "git://master@folder/delete-non-empty-test-repo/myfile1.txt" ) );
 
         final OutputStream outRootStream = provider.newOutputStream( _root );
         outRootStream.write( "my cool content".getBytes() );
         outRootStream.close();
 
-        final Path path = provider.getPath( URI.create( "git://master@delete-non-empty-test-repo/other/path/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/delete-non-empty-test-repo/other/path/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://master@delete-non-empty-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://master@folder/delete-non-empty-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://master@delete-non-empty-test-repo/other/path/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://master@folder/delete-non-empty-test-repo/other/path/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
         outStream3.close();
 
-        final Path dir1 = provider.getPath( URI.create( "git://master@delete-non-empty-test-repo/other/path/dir" ) );
+        final Path dir1 = provider.getPath( URI.create( "git://master@folder/delete-non-empty-test-repo/other/path/dir" ) );
 
         provider.createDirectory( dir1 );
 
@@ -1033,34 +1033,34 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testFilteredNewDirectoryStream() throws IOException {
-        final URI newRepo = URI.create( "git://filter-dirstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/filter-dirstream-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@filter-dirstream-test-repo/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/filter-dirstream-test-repo/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@filter-dirstream-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/filter-dirstream-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@filter-dirstream-test-repo/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/filter-dirstream-test-repo/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
         outStream3.close();
 
-        final Path path4 = provider.getPath( URI.create( "git://user_branch@filter-dirstream-test-repo/myfile4.xxx" ) );
+        final Path path4 = provider.getPath( URI.create( "git://user_branch@folder/filter-dirstream-test-repo/myfile4.xxx" ) );
 
         final OutputStream outStream4 = provider.newOutputStream( path4 );
         outStream4.write( "my cool content".getBytes() );
         outStream4.close();
 
-        final DirectoryStream<Path> stream1 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@filter-dirstream-test-repo/" ) ), new DirectoryStream.Filter<Path>() {
+        final DirectoryStream<Path> stream1 = provider.newDirectoryStream( provider.getPath( URI.create( "git://user_branch@folder/filter-dirstream-test-repo/" ) ), new DirectoryStream.Filter<Path>() {
             @Override
             public boolean accept( final Path entry ) throws org.uberfire.java.nio.IOException {
                 return entry.toString().endsWith( ".xxx" );
@@ -1069,7 +1069,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( stream1 ).isNotNull().hasSize( 1 ).contains( path4 );
 
-        final DirectoryStream<Path> stream2 = provider.newDirectoryStream( provider.getPath( URI.create( "git://master@filter-dirstream-test-repo/" ) ), new DirectoryStream.Filter<Path>() {
+        final DirectoryStream<Path> stream2 = provider.newDirectoryStream( provider.getPath( URI.create( "git://master@folder/filter-dirstream-test-repo/" ) ), new DirectoryStream.Filter<Path>() {
             @Override
             public boolean accept( final Path entry ) throws org.uberfire.java.nio.IOException {
                 return false;
@@ -1081,22 +1081,22 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testGetFileAttributeView() throws IOException {
-        final URI newRepo = URI.create( "git://getfileattriview-test-repo" );
+        final URI newRepo = URI.create( "git://folder/getfileattriview-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@getfileattriview-test-repo/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/getfileattriview-test-repo/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@getfileattriview-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/getfileattriview-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@getfileattriview-test-repo/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/getfileattriview-test-repo/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
@@ -1114,14 +1114,14 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         assertThat( attrs.readAttributes().size() ).isEqualTo( 15L );
 
         try {
-            provider.getFileAttributeView( provider.getPath( URI.create( "git://user_branch@getfileattriview-test-repo/not_exists.txt" ) ), BasicFileAttributeView.class );
+            provider.getFileAttributeView( provider.getPath( URI.create( "git://user_branch@folder/getfileattriview-test-repo/not_exists.txt" ) ), BasicFileAttributeView.class );
             failBecauseExceptionWasNotThrown( NoSuchFileException.class );
         } catch ( Exception ignored ) {
         }
 
         assertThat( provider.getFileAttributeView( path3, MyInvalidFileAttributeView.class ) ).isNull();
 
-        final Path rootPath = provider.getPath( URI.create( "git://user_branch@getfileattriview-test-repo/" ) );
+        final Path rootPath = provider.getPath( URI.create( "git://user_branch@folder/getfileattriview-test-repo/" ) );
 
         final BasicFileAttributeView attrsRoot = provider.getFileAttributeView( rootPath, BasicFileAttributeView.class );
 
@@ -1134,22 +1134,22 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testReadAttributes() throws IOException {
-        final URI newRepo = URI.create( "git://readattrs-test-repo" );
+        final URI newRepo = URI.create( "git://folder/readattrs-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@readattrs-test-repo/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/readattrs-test-repo/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@readattrs-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/readattrs-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@readattrs-test-repo/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/readattrs-test-repo/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
@@ -1164,14 +1164,14 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         assertThat( attrs.size() ).isEqualTo( 15L );
 
         try {
-            provider.readAttributes( provider.getPath( URI.create( "git://user_branch@readattrs-test-repo/not_exists.txt" ) ), BasicFileAttributes.class );
+            provider.readAttributes( provider.getPath( URI.create( "git://user_branch@folder/readattrs-test-repo/not_exists.txt" ) ), BasicFileAttributes.class );
             failBecauseExceptionWasNotThrown( NoSuchFileException.class );
         } catch ( NoSuchFileException ignored ) {
         }
 
         assertThat( provider.readAttributes( path3, MyAttrs.class ) ).isNull();
 
-        final Path rootPath = provider.getPath( URI.create( "git://user_branch@readattrs-test-repo/" ) );
+        final Path rootPath = provider.getPath( URI.create( "git://user_branch@folder/readattrs-test-repo/" ) );
 
         final BasicFileAttributes attrsRoot = provider.readAttributes( rootPath, BasicFileAttributes.class );
 
@@ -1184,22 +1184,22 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testReadAttributesMap() throws IOException {
-        final URI newRepo = URI.create( "git://readattrsmap-test-repo" );
+        final URI newRepo = URI.create( "git://folder/readattrsmap-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@readattrsmap-test-repo/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/readattrsmap-test-repo/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@readattrsmap-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/readattrsmap-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@readattrsmap-test-repo/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/readattrsmap-test-repo/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
@@ -1230,7 +1230,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         } catch ( UnsupportedOperationException ignored ) {
         }
 
-        final Path rootPath = provider.getPath( URI.create( "git://user_branch@readattrsmap-test-repo/" ) );
+        final Path rootPath = provider.getPath( URI.create( "git://user_branch@folder/readattrsmap-test-repo/" ) );
 
         assertThat( provider.readAttributes( rootPath, "*" ) ).isNotNull().hasSize( 9 );
         assertThat( provider.readAttributes( rootPath, "basic:*" ) ).isNotNull().hasSize( 9 );
@@ -1257,7 +1257,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         }
 
         try {
-            provider.readAttributes( provider.getPath( URI.create( "git://user_branch@readattrsmap-test-repo/not_exists.txt" ) ), BasicFileAttributes.class );
+            provider.readAttributes( provider.getPath( URI.create( "git://user_branch@folder/readattrsmap-test-repo/not_exists.txt" ) ), BasicFileAttributes.class );
             failBecauseExceptionWasNotThrown( NoSuchFileException.class );
         } catch ( NoSuchFileException ignored ) {
         }
@@ -1265,22 +1265,22 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void testSetAttribute() throws IOException {
-        final URI newRepo = URI.create( "git://setattr-test-repo" );
+        final URI newRepo = URI.create( "git://folder/setattr-test-repo" );
         provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path path = provider.getPath( URI.create( "git://master@setattr-test-repo/myfile1.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/setattr-test-repo/myfile1.txt" ) );
 
         final OutputStream outStream = provider.newOutputStream( path );
         outStream.write( "my cool content".getBytes() );
         outStream.close();
 
-        final Path path2 = provider.getPath( URI.create( "git://user_branch@setattr-test-repo/other/path/myfile2.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://user_branch@folder/setattr-test-repo/other/path/myfile2.txt" ) );
 
         final OutputStream outStream2 = provider.newOutputStream( path2 );
         outStream2.write( "my cool content".getBytes() );
         outStream2.close();
 
-        final Path path3 = provider.getPath( URI.create( "git://user_branch@setattr-test-repo/myfile3.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://user_branch@folder/setattr-test-repo/myfile3.txt" ) );
 
         final OutputStream outStream3 = provider.newOutputStream( path3 );
         outStream3.write( "my cool content".getBytes() );
@@ -1341,7 +1341,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     @Test
     public void checkProperAmend() throws Exception {
 
-        final URI newRepo = URI.create( "git://outstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/outstream-test-repo" );
 
         final FileSystem fs = provider.newFileSystem( newRepo, new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_INIT, "true" );
@@ -1350,17 +1350,17 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         assertThat( fs ).isNotNull();
 
         for ( int z = 0; z < 5; z++ ) {
-            final Path _path = provider.getPath( URI.create( "git://user_branch@outstream-test-repo/some/path/myfile.txt" ) );
+            final Path _path = provider.getPath( URI.create( "git://user_branch@folder/outstream-test-repo/some/path/myfile.txt" ) );
             provider.setAttribute( _path, FileSystemState.FILE_SYSTEM_STATE_ATTR, FileSystemState.BATCH );
             {
-                final Path path = provider.getPath( URI.create( "git://user_branch@outstream-test-repo/some/path/myfile.txt" ) );
+                final Path path = provider.getPath( URI.create( "git://user_branch@folder/outstream-test-repo/some/path/myfile.txt" ) );
                 final OutputStream outStream = provider.newOutputStream( path );
                 assertThat( outStream ).isNotNull();
                 outStream.write( ( "my cool content" + z ).getBytes() );
                 outStream.close();
             }
             {
-                final Path path2 = provider.getPath( URI.create( "git://error_branch@outstream-test-repo/some/path/myfile.txt" ) );
+                final Path path2 = provider.getPath( URI.create( "git://error_branch@folder/outstream-test-repo/some/path/myfile.txt" ) );
                 final OutputStream outStream2 = provider.newOutputStream( path2 );
                 assertThat( outStream2 ).isNotNull();
                 outStream2.write( ( "bad content" + z ).getBytes() );
@@ -1370,7 +1370,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
             provider.setAttribute( _path, FileSystemState.FILE_SYSTEM_STATE_ATTR, FileSystemState.NORMAL );
         }
 
-        final Path path = provider.getPath( URI.create( "git://error_branch@outstream-test-repo/some/path/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://error_branch@folder/outstream-test-repo/some/path/myfile.txt" ) );
         final JGitVersionAttributeView attrs = provider.getFileAttributeView( path.getRoot(), JGitVersionAttributeView.class );
 
         assertThat( attrs.readAttributes().history().records().size() ).isEqualTo( 5 );
@@ -1379,13 +1379,13 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     @Test
     public void checkProperSquash() throws IOException, GitAPIException {
 
-        final URI newRepo = URI.create( "git://squash-repo" );
+        final URI newRepo = URI.create( "git://folder/squash-repo" );
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path generalPath = provider.getPath( URI.create( "git://master@squash-repo/" ) );
-        final Path path = provider.getPath( URI.create( "git://master@squash-repo/myfile1.txt" ) );
-        final Path path2 = provider.getPath( URI.create( "git://master@squash-repo/myfile2.txt" ) );
-        final Path path3 = provider.getPath( URI.create( "git://master@squash-repo/myfile3.txt" ) );
+        final Path generalPath = provider.getPath( URI.create( "git://master@folder/squash-repo/" ) );
+        final Path path = provider.getPath( URI.create( "git://master@folder/squash-repo/myfile1.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://master@folder/squash-repo/myfile2.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://master@folder/squash-repo/myfile3.txt" ) );
 
         final OutputStream aStream = provider.newOutputStream( path );
         aStream.write( "my cool content".getBytes() );
@@ -1415,13 +1415,13 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
     @Test(expected = GitException.class)
     public void testSquashFailBecauseCommitIsFromAnotherBranch() throws IOException, GitAPIException {
 
-        final URI newRepo = URI.create( "git://squash-repo" );
+        final URI newRepo = URI.create( "git://folder/squash-repo" );
         final JGitFileSystem fs = (JGitFileSystem) provider.newFileSystem( newRepo, EMPTY_ENV );
 
-        final Path generalPath = provider.getPath( URI.create( "git://master@squash-repo/" ) );
-        final Path path = provider.getPath( URI.create( "git://develop@squash-repo/myfile1.txt" ) );
-        final Path path2 = provider.getPath( URI.create( "git://master@squash-repo/myfile2.txt" ) );
-        final Path path3 = provider.getPath( URI.create( "git://master@squash-repo/myfile3.txt" ) );
+        final Path generalPath = provider.getPath( URI.create( "git://master@folder/squash-repo/" ) );
+        final Path path = provider.getPath( URI.create( "git://develop@folder/squash-repo/myfile1.txt" ) );
+        final Path path2 = provider.getPath( URI.create( "git://master@folder/squash-repo/myfile2.txt" ) );
+        final Path path3 = provider.getPath( URI.create( "git://master@folder/squash-repo/myfile3.txt" ) );
 
         final OutputStream aStream = provider.newOutputStream( path );
         aStream.write( "my cool content".getBytes() );
@@ -1444,7 +1444,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
     @Test
     public void checkBatchError() throws Exception {
-        final URI newRepo = URI.create( "git://outstream-test-repo" );
+        final URI newRepo = URI.create( "git://folder/outstream-test-repo" );
 
         final FileSystem fs = provider.newFileSystem( newRepo, new HashMap<String, Object>() {{
             put( JGitFileSystemProvider.GIT_ENV_KEY_INIT, "true" );
@@ -1464,7 +1464,7 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
 
         assertThat( fs ).isNotNull();
 
-        final Path path = provider.getPath( URI.create( "git://user_branch@outstream-test-repo/some/path/myfile.txt" ) );
+        final Path path = provider.getPath( URI.create( "git://user_branch@folder/outstream-test-repo/some/path/myfile.txt" ) );
         provider.setAttribute( path, FileSystemState.FILE_SYSTEM_STATE_ATTR, FileSystemState.BATCH );
         final OutputStream outStream = provider.newOutputStream( path );
         assertThat( outStream ).isNotNull();
@@ -1476,6 +1476,76 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         } catch ( Exception ex ) {
             fail( "Batch can't fail!", ex );
         }
+    }
+
+    @Test
+    public void testExtractPathWithAuthority() {
+
+        String path = "git://master@folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractPath( uri );
+        assertThat( extracted ).isEqualTo( "/readme.md" );
+
+    }
+
+    @Test
+    public void testComplexExtractPath() {
+
+        String path = "git://origin/master@folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractPath( uri );
+        assertThat( extracted ).isEqualTo( "/readme.md" );
+
+    }
+
+    @Test
+    public void testExtractComplexRepoName() {
+        String path = "git://origin/master@folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractRepoName( uri );
+        assertThat( extracted ).isEqualTo( "folder/repo" );
+    }
+
+    @Test
+    public void testExtractSimpleRepoName() {
+        String path = "git://master@folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractRepoName( uri );
+        assertThat( extracted ).isEqualTo( "folder/repo" );
+    }
+
+    @Test
+    public void testExtractVerySimpleRepoName() {
+        String path = "git://folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractRepoName( uri );
+        assertThat( extracted ).isEqualTo( "folder/repo" );
+    }
+
+    @Test
+    public void testExtractHostWithBranch() {
+        String path = "git://origin/master@folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractHost( uri );
+        assertThat( extracted ).isEqualTo( "origin/master@folder/repo" );
+    }
+
+    @Test
+    public void testExtractHost() {
+        String path = "git://folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractHost( uri );
+        assertThat( extracted ).isEqualTo( "folder/repo" );
+
+    }
+
+    @Test
+    public void testSimpleExtractHost() {
+        String path = "git://master@folder/repo/readme.md";
+        final URI uri = URI.create( path );
+        final String extracted = provider.extractHost( uri );
+        assertThat( extracted ).isEqualTo( "master@folder/repo" );
+
     }
 
     private static interface MyAttrs extends BasicFileAttributes {
@@ -1529,4 +1599,5 @@ public class JGitFileSystemProviderTest extends AbstractTestInfra {
         }
         return commits;
     }
+
 }
