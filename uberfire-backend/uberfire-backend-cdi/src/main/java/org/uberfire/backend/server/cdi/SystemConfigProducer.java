@@ -62,6 +62,7 @@ import org.uberfire.java.nio.base.FileSystemState;
 import org.uberfire.java.nio.file.FileStore;
 import org.uberfire.java.nio.file.FileSystem;
 import org.uberfire.java.nio.file.FileSystemAlreadyExistsException;
+import org.uberfire.java.nio.file.FileSystemNotFoundException;
 import org.uberfire.java.nio.file.InvalidPathException;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.PathMatcher;
@@ -176,7 +177,7 @@ public class SystemConfigProducer implements Extension {
         }
     }
 
-    <T> void processAnnotatedType( @Observes @WithAnnotations( Veto.class ) ProcessAnnotatedType<T> pat ) {
+    <T> void processAnnotatedType( @Observes @WithAnnotations(Veto.class) ProcessAnnotatedType<T> pat ) {
         pat.veto();
     }
 
@@ -204,7 +205,7 @@ public class SystemConfigProducer implements Extension {
     }
 
     Bean<FileSystem> createFileSystemBean( final BeanManager bm,
-                                                   final InjectionTarget<DummyFileSystem> it ) {
+                                           final InjectionTarget<DummyFileSystem> it ) {
         return new Bean<FileSystem>() {
 
             @Override
@@ -268,20 +269,40 @@ public class SystemConfigProducer implements Extension {
                 final CreationalContext<IOService> _ctx = bm.createCreationalContext( bean );
                 final IOService ioService = (IOService) bm.getReference( bean, IOService.class, _ctx );
 
-                FileSystem systemFS;
-                try {
-                    systemFS = ioService.newFileSystem( URI.create( "git://system" ),
-                                                        new HashMap<String, Object>() {{
-                                                            put( "init", Boolean.TRUE );
-                                                            put( "internal", Boolean.TRUE );
-                                                        }} );
-                } catch ( FileSystemAlreadyExistsException e ) {
-                    systemFS = ioService.getFileSystem( URI.create( "git://system" ) );
-                }
+                String source = "git://system";
+                String target = "git://system/system";
+
+                FileSystem systemFS = this.createFileSystem( ioService, source, target );
 
                 PriorityDisposableRegistry.register( "systemFS", systemFS );
 
                 return systemFS;
+            }
+
+            public FileSystem createFileSystem( final IOService ioService,
+                                                final String source,
+                                                final String target ) {
+                URI sourceUri = URI.create( source );
+                URI targetUri = URI.create( target );
+
+                try {
+                    Path sourcePath = ioService.get( sourceUri );
+                    Path targetPath = ioService.get( targetUri );
+                    ioService.move( sourcePath, targetPath );
+                    return ioService.getFileSystem( targetUri );
+                } catch ( FileSystemNotFoundException e ) {
+                    try {
+                        return ioService.newFileSystem( URI.create( target ),
+                                                        new HashMap<String, Object>() {{
+                                                            put( "init", Boolean.TRUE );
+                                                            put( "internal", Boolean.TRUE );
+                                                        }} );
+                    } catch ( FileSystemAlreadyExistsException ex ) {
+                        return ioService.getFileSystem( URI.create( target ) );
+                    }
+
+                }
+
             }
 
             @Override

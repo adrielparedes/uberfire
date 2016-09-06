@@ -61,10 +61,10 @@ public final class PathFactory {
      * 
      * <pre>
      * default://master@repo/some/path/to/file.txt =>
-     * default://locks@system/repo/master/some/path/to/file.txt.ulock
+     * default://locks@system/system/repo/master/some/path/to/file.txt.ulock
      * 
      * file:\\master@repo\some\path\to\file.txt =>
-     * file:\\locks@system\repo\master\some\path\to\file.txt.ulock
+     * file:\\locks@system/system\repo\master\some\path\to\file.txt.ulock
      * </pre>
      * 
      * @param path
@@ -75,7 +75,7 @@ public final class PathFactory {
         checkNotNull( "path", path );
 
         final String systemUri = path.toURI().replaceFirst( "(/|\\\\)([^/&^\\\\]*)@([^/&^\\\\]*)",
-                                                            "$1locks@system$1$3$1$2" );
+                                                            "$1locks@system/system$1$3$1$2" );
 
         return PathFactory.newPath( "/", 
                                     systemUri);
@@ -87,10 +87,10 @@ public final class PathFactory {
      * Examples:
      * 
      * <pre>
-     * default://locks@system/repo/master/some/path/to/file.txt.ulock =>
+     * default://locks@system/system/repo/master/some/path/to/file.txt.ulock =>
      * default://master@repo/some/path/to/file.txt
      * 
-     * file:\\locks@system\repo\master\some\path\to\file.txt.ulock =>
+     * file:\\locks@system/system\repo\master\some\path\to\file.txt.ulock =>
      * file:\\master@repo\some\path\to\file.txt
      * </pre>
      * 
@@ -101,7 +101,7 @@ public final class PathFactory {
     public static Path fromLock( final Path lockPath ) {
         checkNotNull( "path", lockPath );
 
-        final String uri = lockPath.toURI().replaceFirst( "locks@system(/|\\\\)([^/&^\\\\]*)(/|\\\\)([^/&^\\\\]*)",
+        final String uri = lockPath.toURI().replaceFirst( "locks@system/system(/|\\\\)([^/&^\\\\]*)(/|\\\\)([^/&^\\\\]*)",
                                                           "$4@$2" );
 
         return PathFactory.newPath( lockPath.getFileName().replace( LOCK_FILE_EXTENSION, "" ),

@@ -76,13 +76,13 @@ public class PluginMediaServlet
             }
         }
         try {
-            fileSystem = ioService.newFileSystem( URI.create( "default://plugins" ),
+            fileSystem = ioService.newFileSystem( URI.create( "default://system/plugins" ),
                                                   new HashMap<String, Object>() {{
                                                       put( "init", Boolean.TRUE );
                                                       put( "internal", Boolean.TRUE );
                                                   }} );
         } catch ( final FileSystemAlreadyExistsException e ) {
-            fileSystem = ioService.getFileSystem( URI.create( "default://plugins" ) );
+            fileSystem = ioService.getFileSystem( URI.create( "default://system/plugins" ) );
         }
         this.root = fileSystem.getRootDirectories().iterator().next();
     }

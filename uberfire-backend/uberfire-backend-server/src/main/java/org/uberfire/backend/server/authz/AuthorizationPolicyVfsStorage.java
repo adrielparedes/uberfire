@@ -86,13 +86,13 @@ public class AuthorizationPolicyVfsStorage implements AuthorizationPolicyStorage
 
     public void initFileSystem() {
         try {
-            fileSystem = ioService.newFileSystem(URI.create("default://security"),
+            fileSystem = ioService.newFileSystem(URI.create("default://system/security"),
                     new HashMap<String, Object>() {{
                         put("init", Boolean.TRUE);
                         put("internal", Boolean.TRUE);
                     }});
         } catch (FileSystemAlreadyExistsException e) {
-            fileSystem = ioService.getFileSystem(URI.create("default://security"));
+            fileSystem = ioService.getFileSystem(URI.create("default://system/security"));
         }
         this.root = fileSystem.getRootDirectories().iterator().next();
     }

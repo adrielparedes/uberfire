@@ -25,7 +25,6 @@ import org.jboss.errai.marshalling.server.ServerMarshalling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.io.IOService;
-import org.uberfire.java.nio.file.CopyOption;
 import org.uberfire.java.nio.file.FileSystem;
 import org.uberfire.java.nio.file.FileSystemAlreadyExistsException;
 import org.uberfire.java.nio.file.Path;

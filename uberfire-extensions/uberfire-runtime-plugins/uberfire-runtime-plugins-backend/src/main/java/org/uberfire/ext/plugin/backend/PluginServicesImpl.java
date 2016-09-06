@@ -131,13 +131,13 @@ public class PluginServicesImpl implements PluginServices {
     public void init() {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         try {
-            fileSystem = getIoService().newFileSystem( URI.create( "default://plugins" ),
+            fileSystem = getIoService().newFileSystem( URI.create( "default://system/plugins" ),
                                                        new HashMap<String, Object>() {{
                                                            put( "init", Boolean.TRUE );
                                                            put( "internal", Boolean.TRUE );
                                                        }} );
         } catch ( FileSystemAlreadyExistsException e ) {
-            fileSystem = getIoService().getFileSystem( URI.create( "default://plugins" ) );
+            fileSystem = getIoService().getFileSystem( URI.create( "default://system/plugins" ) );
         }
         this.root = fileSystem.getRootDirectories().iterator().next();
     }

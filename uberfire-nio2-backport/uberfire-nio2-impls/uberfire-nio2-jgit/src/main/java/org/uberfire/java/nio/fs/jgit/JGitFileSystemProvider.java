@@ -1942,6 +1942,7 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
 
     public String extractRepoName( final URI uri ) {
         checkNotNull( "uri", uri );
+
         String host = extractHost( uri );
         int index = host.indexOf( '@' );
         if ( index != -1 ) {
@@ -1958,14 +1959,6 @@ public class JGitFileSystemProvider implements SecuredFileSystemProvider,
         if ( path.equals( "/" ) ) {
             throw new IllegalArgumentException( "Repository not found for group '" + host + "'" );
         }
-        int firstSlash = path.indexOf( "/" );
-        String repo = path.substring( firstSlash + 1 );
-        int secondSlash = repo.indexOf( "/" );
-        if ( secondSlash > 0 ) {
-            repo = repo.substring( 0, secondSlash );
-
-        }
-        checkNotEmpty( "repository", repo );
 
         return host;
 

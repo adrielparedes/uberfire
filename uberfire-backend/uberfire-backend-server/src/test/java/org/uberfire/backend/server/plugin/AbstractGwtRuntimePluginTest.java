@@ -31,7 +31,7 @@ public abstract class AbstractGwtRuntimePluginTest {
     public void setup() {
         try {
             contextRootDir = new File( getClass().getClassLoader().getResource( "test-app" ).getFile() ).getParentFile().getAbsolutePath();
-            pluginDir = new File( getClass().getClassLoader().getResource( "plugins" ).getFile() ).getAbsolutePath();
+            pluginDir = new File( getClass().getClassLoader().getResource(  "plugins" ).getFile() ).getAbsolutePath();
             pluginDeploymentDir = new File( getClass().getClassLoader().getResource( "test-app/test-app.nocache.js" ).getFile() ).getParentFile().getAbsolutePath();
         }
         catch (Exception e) {
