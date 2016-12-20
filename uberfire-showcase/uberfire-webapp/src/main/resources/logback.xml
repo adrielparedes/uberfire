@@ -10,12 +10,16 @@
     </encoder>
   </appender>
 
-  <logger name="org.drools" level="info"/>
-  <logger name="org.uberfire" level="info"/>
-  <logger name="org.uberfire.backend.server.cdi" level="debug"/>
-
-  <root level="info">
+  <root level="debug">
     <appender-ref ref="consoleAppender"/>
   </root>
+
+  <logger name="org.drools" level="info"/>
+  <logger name="org.errai" level="info"/>
+  <logger name="org.eclipse" level="info"/>
+
+  <logger name="org.uberfire.backend.server" level="debug">
+    <appender-ref ref="consoleAppender"/>
+  </logger>
 
 </configuration>

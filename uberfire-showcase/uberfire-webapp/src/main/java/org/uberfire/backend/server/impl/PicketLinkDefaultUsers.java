@@ -76,6 +76,7 @@ public class PicketLinkDefaultUsers {
         relationshipManager.add( new Grant( admin, roleAdmin ) );
 
         relationshipManager.add( new Grant( nonAdmin, roleSimple ) );
+        relationshipManager.add( new Grant( nonAdmin, roleAdmin ) );
     }
 
 }

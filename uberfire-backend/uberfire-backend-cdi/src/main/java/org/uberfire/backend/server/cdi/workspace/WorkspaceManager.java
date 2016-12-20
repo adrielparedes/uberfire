@@ -35,7 +35,7 @@ import org.uberfire.backend.server.cdi.model.WorkspaceImpl;
  * Contains every workspace created in the application.
  */
 @ApplicationScoped
-public class  WorkspaceManager {
+public class WorkspaceManager {
 
     private static final long CACHE_MAXIMUM_SIZE = 3;
     private static final int EXPIRATION_DURATION = 10;
@@ -63,11 +63,11 @@ public class  WorkspaceManager {
                 .maximumSize( CACHE_MAXIMUM_SIZE )
                 .expireAfterAccess( EXPIRATION_DURATION, EXPIRATION_UNIT )
                 .removalListener( removalNotification -> {
-                    if ( logger.isDebugEnabled() ) {
-                        logger.debug( "[{},{}] {}",
-                                      removalNotification.getKey().toString(),
-                                      removalNotification.getValue().toString(),
-                                      removalNotification.getCause().toString() );
+                    if ( logger.isInfoEnabled() ) {
+                        logger.info( "[{},{}] {}",
+                                     removalNotification.getKey().toString(),
+                                     removalNotification.getValue().toString(),
+                                     removalNotification.getCause().toString() );
                     }
                 } )
                 .build();

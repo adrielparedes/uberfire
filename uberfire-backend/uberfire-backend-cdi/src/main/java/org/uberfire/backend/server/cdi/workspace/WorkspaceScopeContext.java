@@ -55,15 +55,15 @@ public class WorkspaceScopeContext implements Context {
         final T instance = getWorkspaceManager().getBean( workspace, bean.getBeanClass().getSimpleName() );
 
         if ( instance == null ) {
-            if ( logger.isDebugEnabled() ) {
-                logger.debug( "Creating Bean <<{}>> with creational context for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
+            if ( logger.isInfoEnabled() ) {
+                logger.info( "Creating Bean <<{}>> with creational context for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
             }
             final T created = bean.create( creationalContext );
             this.getWorkspaceManager().putBean( workspace, bean.getBeanClass().getSimpleName(), created );
             return created;
         } else {
-            if ( logger.isDebugEnabled() ) {
-                logger.debug( "Bean <<{}>> found for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
+            if ( logger.isInfoEnabled() ) {
+                logger.info( "Bean <<{}>> found for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
             }
             return instance;
         }
@@ -74,8 +74,8 @@ public class WorkspaceScopeContext implements Context {
     public <T> T get( final Contextual<T> contextual ) {
         Bean<T> bean = getBean( contextual );
         Workspace workspace = this.getWorkspaceManager().getOrCreateWorkspace( getWorkspaceName() );
-        if ( logger.isDebugEnabled() ) {
-            logger.debug( "Getting Bean <<{}>> for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
+        if ( logger.isInfoEnabled() ) {
+            logger.info( "Getting Bean <<{}>> for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
         }
         return this.getWorkspaceManager().getBean( workspace, bean.getBeanClass().toString() );
     }
