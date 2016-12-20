@@ -31,6 +31,17 @@
   <name>UberFire Backend CDI Extensions</name>
   <description>UberFire Backend CDI Extensions</description>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jglue.cdi-unit</groupId>
+        <artifactId>cdi-unit</artifactId>
+        <version>3.1.3</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.uberfire</groupId>
@@ -53,6 +64,63 @@
       <artifactId>jboss-el-api_3.0_spec</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jglue.cdi-unit</groupId>
+      <artifactId>cdi-unit</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>net.jcip</groupId>
+          <artifactId>jcip-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>annotations</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.weld.se</groupId>
+      <artifactId>weld-se-core</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!--<dependency>-->
+    <!--<groupId>org.jboss.spec.javax.servlet</groupId>-->
+    <!--<artifactId>jboss-servlet-api_3.0_spec</artifactId>-->
+    <!--<scope>test</scope>-->
+    <!--</dependency>-->
+
+    <dependency>
+      <groupId>org.uberfire</groupId>
+      <artifactId>uberfire-testing-utils</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

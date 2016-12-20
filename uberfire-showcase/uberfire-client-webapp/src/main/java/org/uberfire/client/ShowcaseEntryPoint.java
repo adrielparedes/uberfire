@@ -15,8 +15,6 @@
  */
 package org.uberfire.client;
 
-import static org.uberfire.workbench.model.menu.MenuFactory.newTopLevelMenu;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,12 +22,16 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import com.google.gwt.animation.client.Animation;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.RootPanel;
 import org.jboss.errai.bus.client.api.ClientMessageBus;
 import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.jboss.errai.ioc.client.container.IOC;
@@ -51,11 +53,7 @@ import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.MenuItem;
 import org.uberfire.workbench.model.menu.Menus;
 
-import com.google.gwt.animation.client.Animation;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.RootPanel;
+import static org.uberfire.workbench.model.menu.MenuFactory.*;
 
 /**
  * GWT's Entry-point for Uberfire-showcase
@@ -65,6 +63,9 @@ public class ShowcaseEntryPoint {
 
     @Inject
     private SyncBeanManager manager;
+
+//    @Inject
+//    private WorkspaceServiceMock mock;
 
     @Inject
     private WorkbenchMenuBar menubar;
@@ -81,8 +82,12 @@ public class ShowcaseEntryPoint {
     @Inject
     private ClientMessageBus bus;
 
-    @Inject private Event<DumpLayout> dumpLayoutEvent;
-    public static class DumpLayout {};
+    @Inject
+    private Event<DumpLayout> dumpLayoutEvent;
+
+    public static class DumpLayout {
+
+    }
 
     @PostConstruct
     public void startApp() {
@@ -94,30 +99,30 @@ public class ShowcaseEntryPoint {
 
         final Menus menus =
                 newTopLevelMenu( "Home" )
-                .respondsWith( new Command() {
-                    @Override
-                    public void execute() {
-                        if ( defaultPerspective != null ) {
-                            placeManager.goTo( new DefaultPlaceRequest( defaultPerspective.getIdentifier() ) );
-                        } else {
-                            Window.alert( "Default perspective not found." );
-                        }
-                    }
-                } )
-                .endMenu()
-                .newTopLevelMenu( "Perspectives" )
-                .withItems( getPerspectives() )
-                .endMenu()
-                .newTopLevelMenu( "Screens" )
-                .withItems( getScreens() )
-                .endMenu()
-                .newTopLevelMenu( "Dump Layout" ).respondsWith( new Command() {
+                        .respondsWith( new Command() {
+                            @Override
+                            public void execute() {
+                                if ( defaultPerspective != null ) {
+                                    placeManager.goTo( new DefaultPlaceRequest( defaultPerspective.getIdentifier() ) );
+                                } else {
+                                    Window.alert( "Default perspective not found." );
+                                }
+                            }
+                        } )
+                        .endMenu()
+                        .newTopLevelMenu( "Perspectives" )
+                        .withItems( getPerspectives() )
+                        .endMenu()
+                        .newTopLevelMenu( "Screens" )
+                        .withItems( getScreens() )
+                        .endMenu()
+                        .newTopLevelMenu( "Dump Layout" ).respondsWith( new Command() {
                     @Override
                     public void execute() {
                         dumpLayoutEvent.fire( new DumpLayout() );
                     }
                 } ).endMenu()
-                .build();
+                        .build();
 
         menubar.addMenus( menus );
     }
@@ -204,14 +209,13 @@ public class ShowcaseEntryPoint {
         Collections.sort( sortedActivities,
                           new Comparator<PerspectiveActivity>() {
 
-            @Override
-            public int compare( PerspectiveActivity o1,
-                                PerspectiveActivity o2 ) {
-                return o1.getDefaultPerspectiveLayout().getName().compareTo( o2.getDefaultPerspectiveLayout().getName() );
-            }
+                              @Override
+                              public int compare( PerspectiveActivity o1,
+                                                  PerspectiveActivity o2 ) {
+                                  return o1.getDefaultPerspectiveLayout().getName().compareTo( o2.getDefaultPerspectiveLayout().getName() );
+                              }
 
-        } );
-
+                          } );
 
         return sortedActivities;
     }

@@ -30,7 +30,7 @@ import org.uberfire.client.views.pfly.multipage.PageImpl;
 import org.uberfire.client.workbench.widgets.multipage.MultiPageEditor;
 
 @Dependent
-@WorkbenchEditor( identifier = "SampleWorkbenchEditor", supportedTypes = TextResourceType.class )
+@WorkbenchEditor(identifier = "SampleWorkbenchEditor", supportedTypes = TextResourceType.class)
 public class SampleWorkbenchEditor {
 
     @Inject

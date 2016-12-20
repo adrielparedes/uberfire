@@ -37,7 +37,7 @@
   </properties>
 
   <dependencies>
-                
+
     <dependency>
       <groupId>org.uberfire</groupId>
       <artifactId>uberfire-all</artifactId>
@@ -51,6 +51,11 @@
     <dependency>
       <groupId>org.uberfire</groupId>
       <artifactId>uberfire-backend-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.uberfire</groupId>
+      <artifactId>uberfire-backend-cdi</artifactId>
     </dependency>
 
     <dependency>
@@ -258,7 +263,7 @@
           <disableCastChecking>true</disableCastChecking>
           <runTarget>index.html</runTarget>
           <hostedWebapp>src/main/webapp</hostedWebapp>
-          <module>org.uberfire.FastCompiledUberfireShowcase</module>   
+          <module>org.uberfire.FastCompiledUberfireShowcase</module>
           <generateJsInteropExports>true</generateJsInteropExports>
           <compileSourcesArtifacts>
             <!-- UberFire -->
@@ -336,7 +341,7 @@
                 <include>src/main/webapp/org.uberfire.UberfireShowcase/</include>
                 <include>src/main/webapp/WEB-INF/deploy/</include>
                 <include>src/main/webapp/WEB-INF/classes/</include>
-                <include>src/main/webapp/WEB-INF/lib/</include>                
+                <include>src/main/webapp/WEB-INF/lib/</include>
                 <include>repositories/</include>
                 <include>.errai/</include>
                 <include>.niogit/**</include>
