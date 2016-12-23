@@ -62,7 +62,7 @@ public class WorkspaceBuilderServiceTest {
     }
 
     @Test
-    public void test() {
+    public void testConcurrentWorkspaceBeans() {
 
         String THREAD_NAME_2 = "ray vaughan";
         String THREAD_NAME_1 = "hendrix";
