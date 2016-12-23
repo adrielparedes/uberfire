@@ -20,8 +20,7 @@ import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
-import org.uberfire.backend.server.cdi.model.Workspace;
+import org.uberfire.backend.cdi.workspace.Workspace;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +30,7 @@ public class WorkspaceManagerTest {
 
     @Before
     public void setUp() {
-        this.workspaceManager = new WorkspaceManager( LoggerFactory.getLogger( WorkspaceManager.class ) );
+        this.workspaceManager = new WorkspaceManager();
         this.workspaceManager.initialize();
     }
 
@@ -71,6 +70,12 @@ public class WorkspaceManagerTest {
         this.workspaceManager.putBean( workspace, "e", new Object() );
 
         assertEquals( 3, this.workspaceManager.getBeansCount( workspace ) );
+    }
+
+    @Test
+    public void testGetBeanDoesNotExists() {
+        final Workspace workspace = this.workspaceManager.getOrCreateWorkspace( "hendrix" );
+        assertNull( this.workspaceManager.getBean( workspace, "a" ) );
     }
 
 }

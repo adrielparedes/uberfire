@@ -17,8 +17,6 @@
 package org.uberfire.backend.server.cdi;
 
 import java.io.Serializable;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +27,6 @@ import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
  */
 @WorkspaceScoped
 public class WorkspaceBuilderService implements Serializable {
-
-    @Inject
-    BeanManager beanManager;
 
     private Logger logger = LoggerFactory.getLogger( WorkspaceBuilderService.class );
 

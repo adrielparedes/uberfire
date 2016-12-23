@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package org.uberfire.backend.server.cdi.model;
+package org.uberfire.backend.cdi.workspace;
 
+/**
+ *
+ */
 public interface Workspace {
 
+    /**
+     * @return
+     */
     String getName();
 
 }

@@ -26,11 +26,13 @@ import javax.enterprise.inject.spi.BeanManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.uberfire.backend.server.cdi.model.Workspace;
+import org.uberfire.backend.cdi.workspace.Workspace;
 import org.uberfire.rpc.SessionInfo;
 
 /**
- * Workspace context. Manage all the contexts, the creation, entering and exiting.
+ * Workspace context.
+ * Uses {@link WorkspaceManager} to create beans. Those beans must be annotated with
+ * {@link WorkspaceScoped} annotation. Every bean has only one instance per workspace.
  */
 public class WorkspaceScopeContext implements Context {
 
@@ -55,15 +57,15 @@ public class WorkspaceScopeContext implements Context {
         final T instance = getWorkspaceManager().getBean( workspace, bean.getBeanClass().getSimpleName() );
 
         if ( instance == null ) {
-            if ( logger.isInfoEnabled() ) {
-                logger.info( "Creating Bean <<{}>> with creational context for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( "Creating Bean <<{}>> with creational context for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
             }
             final T created = bean.create( creationalContext );
             this.getWorkspaceManager().putBean( workspace, bean.getBeanClass().getSimpleName(), created );
             return created;
         } else {
-            if ( logger.isInfoEnabled() ) {
-                logger.info( "Bean <<{}>> found for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
+            if ( logger.isDebugEnabled() ) {
+                logger.debug( "Bean <<{}>> found for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
             }
             return instance;
         }
@@ -74,8 +76,8 @@ public class WorkspaceScopeContext implements Context {
     public <T> T get( final Contextual<T> contextual ) {
         Bean<T> bean = getBean( contextual );
         Workspace workspace = this.getWorkspaceManager().getOrCreateWorkspace( getWorkspaceName() );
-        if ( logger.isInfoEnabled() ) {
-            logger.info( "Getting Bean <<{}>> for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "Getting Bean <<{}>> for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
         }
         return this.getWorkspaceManager().getBean( workspace, bean.getBeanClass().toString() );
     }

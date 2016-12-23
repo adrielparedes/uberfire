@@ -16,6 +16,8 @@
 
 package org.uberfire.backend.server.cdi.model;
 
+import org.uberfire.backend.cdi.workspace.Workspace;
+
 public class WorkspaceImpl implements Workspace {
 
     private final String name;

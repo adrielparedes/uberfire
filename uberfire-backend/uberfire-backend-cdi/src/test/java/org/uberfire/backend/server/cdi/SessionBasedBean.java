@@ -17,11 +17,14 @@
 package org.uberfire.backend.server.cdi;
 
 import java.io.Serializable;
-import javax.enterprise.context.SessionScoped;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-@SessionScoped
+@Stateless
 public class SessionBasedBean implements Serializable {
+
+//    @Inject
+//    private BoundSessionContext boundSessionContext;
 
     @Inject
     private WorkspaceBuilderService service;

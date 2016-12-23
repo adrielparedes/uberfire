@@ -25,21 +25,24 @@ import javax.enterprise.inject.spi.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Workspace Scoped CDI Extension to add WorkspaceScoped behavior into Uberfire
+ */
 public class WorkspaceScopedExtension implements Extension {
 
     private Logger logger = LoggerFactory.getLogger( WorkspaceScopedExtension.class );
 
     public void beforeBeanDiscovery( @Observes BeforeBeanDiscovery bbd ) {
-        if ( logger.isInfoEnabled() ) {
-            logger.info( "Before bean discovery, adding WosrkspaceScoped" );
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "Before bean discovery, adding WosrkspaceScoped" );
         }
         bbd.addScope( WorkspaceScoped.class, true, false );
     }
 
     public void afterBeanDiscovery( @Observes AfterBeanDiscovery abd,
                                     BeanManager beanManager ) {
-        if ( logger.isInfoEnabled() ) {
-            logger.info( "After bean discovery, adding WorkspaceScopeContext" );
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "After bean discovery, adding WorkspaceScopeContext" );
         }
         abd.addContext( new WorkspaceScopeContext( beanManager ) );
     }
