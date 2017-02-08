@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.uberfire.backend.server.cdi.workspace;
+package org.uberfire.backend.cdi.workspace;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +35,9 @@ public class WorkspaceManagerPreferences implements BasePreference<WorkspaceMana
 
     @Property(bundleKey = "WorkspaceManagerPreferences.CacheExpirationUnit")
     private String cacheExpirationUnit;
+
+    public WorkspaceManagerPreferences() {
+    }
 
     @Override
     public WorkspaceManagerPreferences defaultValue( final WorkspaceManagerPreferences defaultValue ) {
