@@ -28,7 +28,6 @@ import org.uberfire.preferences.shared.PreferenceScope;
 import org.uberfire.preferences.shared.PreferenceScopeResolver;
 import org.uberfire.preferences.shared.impl.PreferenceScopeResolutionStrategyInfo;
 import org.uberfire.preferences.shared.impl.PreferenceScopedValue;
-import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 
 /**
  * Client store API for preferences. All client preference management should be made through this service
@@ -84,7 +83,7 @@ public class PreferenceStore {
     }
 
     private ErrorCallback<Message> defaultErrorCallback() {
-        return new DefaultErrorCallback();
+        return ( message, throwable ) -> false;
     }
 
     public <T> void put( final PreferenceScope scope,

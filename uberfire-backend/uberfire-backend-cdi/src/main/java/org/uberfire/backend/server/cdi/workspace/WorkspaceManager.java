@@ -30,7 +30,6 @@ import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.backend.cdi.workspace.Workspace;
-import org.uberfire.backend.cdi.workspace.WorkspaceManagerPreferences;
 import org.uberfire.backend.server.cdi.model.WorkspaceImpl;
 
 /**

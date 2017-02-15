@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package org.uberfire.backend.cdi.workspace;
+package org.uberfire.backend.server.cdi.workspace;
 
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.errai.common.client.api.annotations.Portable;
 import org.uberfire.preferences.shared.annotations.Property;
 import org.uberfire.preferences.shared.annotations.WorkbenchPreference;
 import org.uberfire.preferences.shared.bean.BasePreference;
 
 @WorkbenchPreference(identifier = "WorkspaceManagerPreferences", bundleKey = "WorkspaceManagerPreferences.Label")
-@Portable
 public class WorkspaceManagerPreferences implements BasePreference<WorkspaceManagerPreferences> {
 
     @Property(bundleKey = "WorkspaceManagerPreferences.CacheMaximumSize")

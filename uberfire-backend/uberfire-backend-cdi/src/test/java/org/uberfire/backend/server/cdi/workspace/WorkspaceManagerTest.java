@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.uberfire.backend.cdi.workspace.Workspace;
-import org.uberfire.backend.cdi.workspace.WorkspaceManagerPreferences;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
