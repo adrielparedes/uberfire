@@ -25,9 +25,11 @@ import org.jboss.errai.bus.server.annotations.Service;
 import org.ext.uberfire.social.activities.model.SocialUser;
 import org.ext.uberfire.social.activities.service.SocialUserPersistenceAPI;
 import org.ext.uberfire.social.activities.service.SocialUserRepositoryAPI;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
 
 @Service
-@ApplicationScoped
+//@ApplicationScoped
+@WorkspaceScoped
 public class SocialUserRepository implements SocialUserRepositoryAPI {
 
     @Inject
