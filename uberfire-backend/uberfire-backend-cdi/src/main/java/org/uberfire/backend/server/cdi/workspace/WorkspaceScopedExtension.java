@@ -56,7 +56,7 @@ public class WorkspaceScopedExtension implements Extension {
 
     private Set<Class<?>> classesToBeReplaced = new HashSet<>();
 
-    public <T, X> void vetoEntities( @Observes @WithAnnotations(WorkspaceScoped.class) ProcessAnnotatedType<T> pat ) {
+    public <T> void vetoEntities( @Observes @WithAnnotations(WorkspaceScoped.class) ProcessAnnotatedType<T> pat ) {
         final AnnotatedType<T> target = pat.getAnnotatedType();
         if ( logger.isDebugEnabled() ) {
             logger.debug( "Vetoing class {} to be replaced with workspace subclass", target.getJavaClass().getCanonicalName() );
@@ -75,8 +75,8 @@ public class WorkspaceScopedExtension implements Extension {
                 .load( ClassLoader.getSystemClassLoader() )
                 .getLoaded();
 
-        pat.setAnnotatedType( new AnnotatedTypeBuilder<X extends T>()
-                                      .readFromType( pat.getAnnotatedType() ).setJavaClass( newClazz ).create() );
+        pat.setAnnotatedType( new AnnotatedTypeBuilder<T>()
+                                      .readFromType( pat.getAnnotatedType() ).setJavaClass( (Class<T>) newClazz ).create() );
 
 //        classesToBeReplaced.add( target.getJavaClass() );
 //        pat.veto();
