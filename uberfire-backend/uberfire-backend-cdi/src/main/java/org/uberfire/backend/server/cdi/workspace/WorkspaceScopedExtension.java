@@ -40,6 +40,7 @@ import javax.enterprise.util.AnnotationLiteral;
 
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Visibility;
+import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
 import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.bytecode.member.MethodInvocation;
@@ -56,30 +57,23 @@ public class WorkspaceScopedExtension implements Extension {
 
     private Set<Class<?>> classesToBeReplaced = new HashSet<>();
 
+    private final VetoedByWorkspace wrapped = new VetoedByWorkspace() {
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return VetoedByWorkspace.class;
+        }
+    };
+
     public <T> void vetoEntities( @Observes @WithAnnotations(WorkspaceScoped.class) ProcessAnnotatedType<T> pat ) {
         final AnnotatedType<T> target = pat.getAnnotatedType();
         if ( logger.isDebugEnabled() ) {
             logger.debug( "Vetoing class {} to be replaced with workspace subclass", target.getJavaClass().getCanonicalName() );
         }
 
-        final Class<T> originalClass = target.getJavaClass();
+        pat.setAnnotatedType( new AnnotatedTypeBuilder<T>().readFromType( pat.getAnnotatedType() ).addToClass( wrapped )
+                                      .create() );
 
-        Class<? extends T> newClazz = new ByteBuddy()
-                .subclass( originalClass, ConstructorStrategy.Default.IMITATE_SUPER_CLASS.withInheritedAnnotations() )
-                .name( originalClass.getSimpleName() + "RuntimeGeneratedImpl" )
-                .implement( WorkspaceDefinition.class )
-                .intercept( FieldAccessor.ofField( "workspace" ) )
-                .defineField( "workspace", String.class, Visibility.PRIVATE )
-                .annotateType( originalClass.getAnnotations() )
-                .make()
-                .load( ClassLoader.getSystemClassLoader() )
-                .getLoaded();
-
-        pat.setAnnotatedType( new AnnotatedTypeBuilder<T>()
-                                      .readFromType( pat.getAnnotatedType() ).setJavaClass( (Class<T>) newClazz ).create() );
-
-//        classesToBeReplaced.add( target.getJavaClass() );
-//        pat.veto();
+        classesToBeReplaced.add( target.getJavaClass() );
     }
 
     public void beforeBeanDiscovery( @Observes BeforeBeanDiscovery bbd ) {
@@ -96,7 +90,7 @@ public class WorkspaceScopedExtension implements Extension {
             logger.debug( "After bean discovery, adding WorkspaceScopeContext" );
         }
 
-//        this.classesToBeReplaced.forEach( clazz -> abd.addBean( this.createBean( clazz, beanManager ) ) );
+        this.classesToBeReplaced.forEach( clazz -> abd.addBean( this.createBean( clazz, beanManager ) ) );
         abd.addContext( new WorkspaceScopeContext( beanManager ) );
     }
 
