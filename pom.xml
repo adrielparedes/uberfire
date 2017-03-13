@@ -64,6 +64,7 @@
     <version.org.gwtbootstrap3>0.9.3</version.org.gwtbootstrap3>
 
     <version.org.jboss.byteman>3.0.6</version.org.jboss.byteman>
+    <version.net.byte-buddy>1.6.9</version.net.byte-buddy>
 
     <version.org.picketlink>2.6.0.Final</version.org.picketlink>
     <!-- WildFly version used together with the GWT's Super Dev Mode -->
@@ -793,6 +794,11 @@
         </exclusions>
       </dependency>
 
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${version.net.byte-buddy}</version>
+      </dependency>
 
       <!-- Byteman -->
       <dependency>

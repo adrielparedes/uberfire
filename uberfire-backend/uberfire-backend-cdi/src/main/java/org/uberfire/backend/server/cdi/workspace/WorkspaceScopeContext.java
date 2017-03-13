@@ -23,6 +23,7 @@ import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +54,9 @@ public class WorkspaceScopeContext implements Context {
                       final CreationalContext<T> creationalContext ) {
 
         Bean<T> bean = getBean( contextual );
-        Workspace workspace = this.getWorkspaceManager().getOrCreateWorkspace( getWorkspaceName() );
-        final T instance = getWorkspaceManager().getBean( workspace, bean.getBeanClass().getSimpleName() );
 
+        Workspace workspace = this.getWorkspaceManager().getOrCreateWorkspace( getWorkspaceName( bean ) );
+        final T instance = getWorkspaceManager().getBean( workspace, bean.getBeanClass().getSimpleName() );
         if ( instance == null ) {
             if ( logger.isDebugEnabled() ) {
                 logger.debug( "Creating Bean <<{}>> with creational context for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
@@ -75,18 +76,22 @@ public class WorkspaceScopeContext implements Context {
     @Override
     public <T> T get( final Contextual<T> contextual ) {
         Bean<T> bean = getBean( contextual );
-        Workspace workspace = this.getWorkspaceManager().getOrCreateWorkspace( getWorkspaceName() );
+        Workspace workspace = this.getWorkspaceManager().getOrCreateWorkspace( getWorkspaceName( bean ) );
         if ( logger.isDebugEnabled() ) {
             logger.debug( "Getting Bean <<{}>> for workspace <<{}>>", bean.getBeanClass(), workspace.getName() );
         }
         return this.getWorkspaceManager().getBean( workspace, bean.getBeanClass().toString() );
     }
 
-    private String getWorkspaceName() {
+    private <T> String getWorkspaceName( Bean<T> bean ) {
         try {
             return this.getSessionInfo().getIdentity().getIdentifier();
-        } catch ( NoSuchElementException e ) {
-            return "default";
+        } catch ( Exception e ) {
+            //NoSuchElementException
+            final InjectionPoint injectionPoint = bean.getInjectionPoints().stream().findFirst().orElseThrow( () -> new RuntimeException( "Se rompio" ) );
+            WorkspaceDefinition def = (WorkspaceDefinition) injectionPoint
+                    .getBean();
+            return def.getWorkspace();
         }
     }
 

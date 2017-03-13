@@ -16,6 +16,7 @@
 
 package org.uberfire.backend.server.cdi;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.enterprise.inject.Produces;
@@ -32,7 +33,10 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.uberfire.backend.server.cdi.model.WorkspaceImpl;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceDefinition;
 import org.uberfire.backend.server.cdi.workspace.WorkspaceManager;
 import org.uberfire.backend.server.cdi.workspace.WorkspaceScopedExtension;
 import org.uberfire.java.nio.fs.jgit.JGitFileSystemProvider;
@@ -70,6 +74,14 @@ public class WorkspaceBuilderServiceTest {
 
     @Inject
     SessionBasedBean bean;
+
+    @Inject
+    WorkspaceBuilderService workspaceBuilderService;
+
+    @Produces
+    protected Logger createLogger( InjectionPoint injectionPoint ) {
+        return LoggerFactory.getLogger( injectionPoint.getMember().getDeclaringClass().getSimpleName() );
+    }
 
     @Produces
     protected SessionInfo createSessionInfo( InjectionPoint injectionPoint ) {
@@ -118,6 +130,14 @@ public class WorkspaceBuilderServiceTest {
             bean.build( gav );
             latch.countDown();
         } );
+    }
+
+    @Test
+    public void testSetAndGetWorkspace() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        WorkspaceDefinition definition = (WorkspaceDefinition) workspaceBuilderService;
+        definition.setWorkspace( "hendrix" );
+        assertEquals( "hendrix", definition.getWorkspace() );
     }
 
 }
