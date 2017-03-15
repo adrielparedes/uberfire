@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Any;
@@ -70,10 +71,12 @@ public class WorkspaceScopedExtension implements Extension {
             logger.debug( "Vetoing class {} to be replaced with workspace subclass", target.getJavaClass().getCanonicalName() );
         }
 
-        pat.setAnnotatedType( new AnnotatedTypeBuilder<T>().readFromType( pat.getAnnotatedType() ).addToClass( wrapped )
-                                      .create() );
+//        pat.setAnnotatedType( new AnnotatedTypeBuilder<T>().readFromType( pat.getAnnotatedType() )
+//                                      .removeFromClass( Default.class )
+//                                      .addToClass( wrapped )
+//                                      .create() );
 
-        classesToBeReplaced.add( target.getJavaClass() );
+//        classesToBeReplaced.add( target.getJavaClass() );
     }
 
     public void beforeBeanDiscovery( @Observes BeforeBeanDiscovery bbd ) {
@@ -90,7 +93,7 @@ public class WorkspaceScopedExtension implements Extension {
             logger.debug( "After bean discovery, adding WorkspaceScopeContext" );
         }
 
-        this.classesToBeReplaced.forEach( clazz -> abd.addBean( this.createBean( clazz, beanManager ) ) );
+//        this.classesToBeReplaced.forEach( clazz -> abd.addBean( this.createBean( clazz, beanManager ) ) );
         abd.addContext( new WorkspaceScopeContext( beanManager ) );
     }
 

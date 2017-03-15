@@ -37,6 +37,16 @@ import org.uberfire.rpc.SessionInfo;
  */
 public class WorkspaceScopeContext implements Context {
 
+    private static ThreadLocal<String> workspace = new ThreadLocal<>();
+
+    public static void set( String w ) {
+        workspace.set( w );
+    }
+
+    public static String get() {
+        return workspace.get();
+    }
+
     private static Logger logger = LoggerFactory.getLogger( WorkspaceScopeContext.class );
     private final BeanManager beanManager;
 
@@ -88,10 +98,11 @@ public class WorkspaceScopeContext implements Context {
             return this.getSessionInfo().getIdentity().getIdentifier();
         } catch ( Exception e ) {
             //NoSuchElementException
-            final InjectionPoint injectionPoint = bean.getInjectionPoints().stream().findFirst().orElseThrow( () -> new RuntimeException( "Se rompio" ) );
-            WorkspaceDefinition def = (WorkspaceDefinition) injectionPoint
-                    .getBean();
-            return def.getWorkspace();
+//            final InjectionPoint injectionPoint = bean.getInjectionPoints().stream().findFirst().orElseThrow( () -> new RuntimeException( "Se rompio" ) );
+//            WorkspaceDefinition def = (WorkspaceDefinition) injectionPoint
+//                    .getBean();
+//            return def.getWorkspace();
+            return WorkspaceScopeContext.get();
         }
     }
 

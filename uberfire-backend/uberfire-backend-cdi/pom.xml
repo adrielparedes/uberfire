@@ -31,6 +31,17 @@
   <name>UberFire Backend CDI Extensions</name>
   <description>UberFire Backend CDI Extensions</description>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.spec.javax.enterprise.concurrent</groupId>
+        <artifactId>jboss-concurrency-api_1.0_spec</artifactId>
+        <version>1.0.0.Final</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.uberfire</groupId>
@@ -46,6 +57,12 @@
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.enterprise.concurrent</groupId>
+      <artifactId>jboss-concurrency-api_1.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
 
