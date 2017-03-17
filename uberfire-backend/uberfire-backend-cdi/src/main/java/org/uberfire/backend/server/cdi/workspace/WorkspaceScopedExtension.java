@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import javax.annotation.Resource;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Any;
@@ -64,6 +65,13 @@ public class WorkspaceScopedExtension implements Extension {
             return VetoedByWorkspace.class;
         }
     };
+
+    public <T> void gettingResource( @Observes @WithAnnotations(Resource.class) ProcessAnnotatedType<T> pat ) {
+        final AnnotatedType<T> target = pat.getAnnotatedType();
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "Reource {} found", target.getJavaClass().getCanonicalName() );
+        }
+    }
 
     public <T> void vetoEntities( @Observes @WithAnnotations(WorkspaceScoped.class) ProcessAnnotatedType<T> pat ) {
         final AnnotatedType<T> target = pat.getAnnotatedType();

@@ -18,11 +18,16 @@ package org.uberfire.backend.server.cdi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -30,6 +35,7 @@ import org.jboss.errai.security.shared.api.identity.UserImpl;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +75,8 @@ public class WorkspaceBuilderServiceTest {
                 .addAsServiceProvider( Extension.class, WorkspaceScopedExtension.class );
     }
 
+    private Logger logger = LoggerFactory.getLogger( WorkspaceBuilderServiceTest.class );
+
     @Inject
     private WorkspaceManager workspaceManager;
 
@@ -77,6 +85,9 @@ public class WorkspaceBuilderServiceTest {
 
     @Inject
     WorkspaceBuilderService workspaceBuilderService;
+
+    @Resource
+    ManagedExecutorService managedExecutorService;
 
     @Produces
     protected Logger createLogger( InjectionPoint injectionPoint ) {
@@ -88,9 +99,8 @@ public class WorkspaceBuilderServiceTest {
         return new SessionInfoImpl( new UserImpl( Thread.currentThread().getName() ) );
     }
 
-    @BeforeClass
-    public static void setUp() {
-
+    @Before
+    public void setUp() {
     }
 
     @Test
@@ -129,6 +139,13 @@ public class WorkspaceBuilderServiceTest {
         return new Thread( () -> {
             bean.build( gav );
             latch.countDown();
+        } );
+    }
+
+    @Test
+    public void testExecutorServiceReplacement() {
+        managedExecutorService.execute( () -> {
+            logger.info( "info" );
         } );
     }
 

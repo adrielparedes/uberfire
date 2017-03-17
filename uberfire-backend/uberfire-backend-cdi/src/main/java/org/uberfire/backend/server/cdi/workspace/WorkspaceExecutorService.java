@@ -10,7 +10,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.inject.Inject;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +23,19 @@ public class WorkspaceExecutorService implements ExecutorService {
 
     private Logger logger = LoggerFactory.getLogger( WorkspaceExecutorService.class );
 
-    @Inject
     private SessionInfo sessionInfo;
+
+    private BeanManager beanManager;
 
     @Resource
     private ManagedExecutorService wrapper;
+
+    public WorkspaceExecutorService() {
+        this.beanManager = CDI.current().getBeanManager();
+        final Bean<SessionInfo> bean = (Bean<SessionInfo>) this.beanManager.getBeans( SessionInfo.class ).iterator().next();
+        final CreationalContext<SessionInfo> creationalContext = this.beanManager.createCreationalContext( bean );
+        this.sessionInfo = (SessionInfo) this.beanManager.getReference( bean, SessionInfo.class, creationalContext );
+    }
 
     @Override
     public void shutdown() {
