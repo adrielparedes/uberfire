@@ -1,4 +1,4 @@
-package org.uberfire.backend.server.cdi.workspace;
+package org.uberfire.backend.server.workspace;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,8 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -23,18 +21,27 @@ public class WorkspaceExecutorService implements ExecutorService {
 
     private Logger logger = LoggerFactory.getLogger( WorkspaceExecutorService.class );
 
-    private SessionInfo sessionInfo;
-
     private BeanManager beanManager;
 
-    @Resource
-    private ManagedExecutorService wrapper;
+    private ExecutorService wrapper;
 
-    public WorkspaceExecutorService() {
+    public WorkspaceExecutorService( ExecutorService executorService ) {
+        this.wrapper = executorService;
         this.beanManager = CDI.current().getBeanManager();
-        final Bean<SessionInfo> bean = (Bean<SessionInfo>) this.beanManager.getBeans( SessionInfo.class ).iterator().next();
-        final CreationalContext<SessionInfo> creationalContext = this.beanManager.createCreationalContext( bean );
-        this.sessionInfo = (SessionInfo) this.beanManager.getReference( bean, SessionInfo.class, creationalContext );
+    }
+
+    private String getWorkspaceName() {
+        String workspace = "default";
+        try {
+            final Bean<SessionInfo> bean = (Bean<SessionInfo>) this.beanManager.getBeans( SessionInfo.class ).iterator().next();
+            final CreationalContext<SessionInfo> creationalContext = this.beanManager.createCreationalContext( bean );
+            SessionInfo sessionInfo = (SessionInfo) this.beanManager.getReference( bean, SessionInfo.class, creationalContext );
+            workspace = sessionInfo.getIdentity().getIdentifier();
+        } catch ( Exception e ) {
+            logger.debug( e.getLocalizedMessage() );
+        } finally {
+            return workspace;
+        }
     }
 
     @Override
@@ -111,20 +118,18 @@ public class WorkspaceExecutorService implements ExecutorService {
 
     private Runnable generateRunnable( final Runnable runnable ) {
 
-        String workspace = sessionInfo.getIdentity().getIdentifier();
+        String workspace = getWorkspaceName();
         return () -> {
-            ThreadLocal<String> threadLocal = new ThreadLocal<>();
-            threadLocal.set( workspace );
+            WorkspaceContext.set( workspace );
             runnable.run();
         };
     }
 
     private <T> Callable<T> generateCallable( final Callable<T> callable ) {
 
-        String workspace = sessionInfo.getIdentity().getIdentifier();
+        String workspace = getWorkspaceName();
         return () -> {
-            ThreadLocal<String> threadLocal = new ThreadLocal<>();
-            threadLocal.set( workspace );
+            WorkspaceContext.set( workspace );
             return callable.call();
         };
     }

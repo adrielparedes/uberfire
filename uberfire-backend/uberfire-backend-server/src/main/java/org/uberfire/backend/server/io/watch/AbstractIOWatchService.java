@@ -34,6 +34,7 @@ import javax.naming.InitialContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.backend.server.util.Filter;
+import org.uberfire.backend.server.workspace.WorkspaceExecutorService;
 import org.uberfire.commons.async.DescriptiveRunnable;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
 import org.uberfire.commons.services.cdi.ApplicationStarted;
@@ -55,7 +56,7 @@ public abstract class AbstractIOWatchService implements IOWatchService,
 
     private static final Integer AWAIT_TERMINATION_TIMEOUT = Integer.parseInt( System.getProperty( "org.uberfire.watcher.quitetimeout", "3" ) );
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool( new DescriptiveThreadFactory() );
+    private final ExecutorService executorService = new WorkspaceExecutorService( Executors.newCachedThreadPool( new DescriptiveThreadFactory() ) );
 
     private final List<FileSystem> fileSystems = new ArrayList<FileSystem>();
     private final List<WatchService> watchServices = new ArrayList<WatchService>();
