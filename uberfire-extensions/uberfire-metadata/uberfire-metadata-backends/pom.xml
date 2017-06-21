@@ -31,5 +31,6 @@
 
   <modules>
     <module>uberfire-metadata-backend-lucene</module>
+    <module>uberfire-metadata-backend-hibernate</module>
   </modules>
 </project>
