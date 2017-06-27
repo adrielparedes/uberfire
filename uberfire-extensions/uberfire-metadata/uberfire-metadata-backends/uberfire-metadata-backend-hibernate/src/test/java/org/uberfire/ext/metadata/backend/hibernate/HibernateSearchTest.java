@@ -18,18 +18,23 @@
 package org.uberfire.ext.metadata.backend.hibernate;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 
 import org.apache.lucene.search.Query;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.annotations.common.reflection.ReflectionManager;
+import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.backend.TransactionContext;
 import org.hibernate.search.backend.spi.Work;
 import org.hibernate.search.backend.spi.WorkType;
@@ -94,11 +99,29 @@ public class HibernateSearchTest {
         HSQuery hsQuery = searchIntegrator.createHSQuery(query,
                                                          KObjectImpl.class);
 
-        hsQuery.projection("id",
-                           "data");
+        Field[] fields = KObjectImpl.class.getDeclaredFields();
+        Optional<Field> id = Arrays.stream(KObjectImpl.class.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(DocumentId.class))
+                .findFirst();
+        List<String> projectionFields = Arrays.stream(fields)
+                .filter(field -> field.isAnnotationPresent(org.hibernate.search.annotations.Field.class))
+                .map(field -> field.getAnnotation(org.hibernate.search.annotations.Field.class))
+                .map(annotation -> annotation.name())
+                .collect(Collectors.toList());
+
+        id.ifPresent(field -> {
+            projectionFields.add(field.getName());
+        });
+
+        hsQuery.projection(projectionFields.toArray(new String[projectionFields.size()]));
         List<EntityInfo> entityInfos = hsQuery.queryEntityInfos();
+
+        entityInfos.stream().map(entityInfo -> entityInfo.getProjection());
+
         for (EntityInfo entityInfo : entityInfos) {
-            logger.info(mapper.writeValueAsString(entityInfo));
+            entityInfo.populateWithEntityInstance(new KObjectImpl());
+            logger.info(mapper.writeValueAsString(entityInfo.getProjection()));
+//            KObjectImpl instance = new KObjectImpl();
         }
     }
 
