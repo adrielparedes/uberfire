@@ -20,14 +20,11 @@ package org.uberfire.ext.metadata.backend.hibernate;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 
@@ -99,21 +96,16 @@ public class HibernateSearchTest {
         HSQuery hsQuery = searchIntegrator.createHSQuery(query,
                                                          KObjectImpl.class);
 
-        Field[] fields = KObjectImpl.class.getDeclaredFields();
-        Optional<Field> id = Arrays.stream(KObjectImpl.class.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(DocumentId.class))
-                .findFirst();
-        List<String> projectionFields = Arrays.stream(fields)
-                .filter(field -> field.isAnnotationPresent(org.hibernate.search.annotations.Field.class))
-                .map(field -> field.getAnnotation(org.hibernate.search.annotations.Field.class))
-                .map(annotation -> annotation.name())
-                .collect(Collectors.toList());
+        List<Field> idFields = AnnotationUtils.getFieldsNameWithAnnotation(KObjectImpl.class,
+                                                                           DocumentId.class);
 
-        id.ifPresent(field -> {
-            projectionFields.add(field.getName());
-        });
+        List<Field> fieldFields = AnnotationUtils.getFieldsNameWithAnnotation(KObjectImpl.class,
+                                                                              org.hibernate.search.annotations.Field.class);
+//        id.ifPresent(field -> {
+//            projectionFields.add(field.getName());
+//        });
 
-        hsQuery.projection(projectionFields.toArray(new String[projectionFields.size()]));
+//        hsQuery.projection(projectionFields.toArray(new String[projectionFields.size()]));
         List<EntityInfo> entityInfos = hsQuery.queryEntityInfos();
 
         entityInfos.stream().map(entityInfo -> entityInfo.getProjection());
