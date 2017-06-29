@@ -15,7 +15,7 @@
  *
  */
 
-package org.uberfire.ext.metadata.backend.hibernate;
+package org.uberfire.ext.metadata.backend.hibernate.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

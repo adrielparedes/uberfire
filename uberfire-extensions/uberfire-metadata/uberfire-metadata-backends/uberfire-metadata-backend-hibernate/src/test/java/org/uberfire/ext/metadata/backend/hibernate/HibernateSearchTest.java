@@ -53,6 +53,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.util.AnnotationUtils;
 
 public class HibernateSearchTest {
 
@@ -101,11 +102,20 @@ public class HibernateSearchTest {
 
         List<Field> fieldFields = AnnotationUtils.getFieldsNameWithAnnotation(KObjectImpl.class,
                                                                               org.hibernate.search.annotations.Field.class);
-//        id.ifPresent(field -> {
-//            projectionFields.add(field.getName());
-//        });
 
-//        hsQuery.projection(projectionFields.toArray(new String[projectionFields.size()]));
+        List<String> projectionFields = new ArrayList<>();
+        projectionFields.add(idFields.get(0).getName());
+
+        for (Field field : fieldFields) {
+            String fieldName = field.getName();
+            org.hibernate.search.annotations.Field annotation = field.getAnnotation(org.hibernate.search.annotations.Field.class);
+            if (annotation.name() != null && !annotation.name().isEmpty()) {
+                fieldName = annotation.name();
+            }
+            projectionFields.add(fieldName);
+        }
+
+        hsQuery.projection(projectionFields.toArray(new String[projectionFields.size()]));
         List<EntityInfo> entityInfos = hsQuery.queryEntityInfos();
 
         entityInfos.stream().map(entityInfo -> entityInfo.getProjection());
