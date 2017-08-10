@@ -627,6 +627,19 @@
 
       <dependency>
         <groupId>org.uberfire</groupId>
+        <artifactId>uberfire-metadata-backend-hibernate</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.uberfire</groupId>
+        <artifactId>uberfire-metadata-backend-hibernate</artifactId>
+        <version>${project.version}</version>
+        <scope>sources</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.uberfire</groupId>
         <artifactId>uberfire-metadata-commons-io</artifactId>
         <version>${project.version}</version>
       </dependency>

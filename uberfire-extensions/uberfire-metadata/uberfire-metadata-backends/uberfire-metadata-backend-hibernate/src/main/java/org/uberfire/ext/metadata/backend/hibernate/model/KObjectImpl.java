@@ -18,8 +18,8 @@
 package org.uberfire.ext.metadata.backend.hibernate.model;
 
 import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.uberfire.ext.metadata.model.KObject;
@@ -27,41 +27,50 @@ import org.uberfire.ext.metadata.model.KProperty;
 import org.uberfire.ext.metadata.model.schema.MetaType;
 
 @Indexed
-public class KObjectImpl implements KObject {
+public class KObjectImpl extends Indexable implements KObject {
 
-    @DocumentId
-    private String id;
+    @Field(analyze = Analyze.NO, store = Store.YES)
+    private String clusterId;
 
-    @Field(name = "data", analyze = Analyze.NO, store = Store.YES)
-    private String data;
+    @Field(analyze = Analyze.NO, store = Store.YES)
+    private String segmentId;
+
+    @Field(analyze = Analyze.NO, store = Store.YES)
+    private String key;
+
+    @Field(analyze = Analyze.NO, store = Store.YES)
+    @FieldBridge(impl = KPropertyBridge.class)
+    private Iterable<KProperty<?>> properties;
+
+    @Field(analyze = Analyze.NO, store = Store.YES)
+    private boolean fullText;
 
     @Override
     public String getClusterId() {
-        return null;
+        return this.clusterId;
     }
 
     @Override
     public String getSegmentId() {
-        return null;
+        return this.segmentId;
     }
 
     @Override
     public String getKey() {
-        return null;
+        return this.key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     @Override
     public Iterable<KProperty<?>> getProperties() {
-        return null;
+        return this.properties;
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setProperties(Iterable<KProperty<?>> properties) {
+        this.properties = properties;
     }
 
     @Override
@@ -71,14 +80,6 @@ public class KObjectImpl implements KObject {
 
     @Override
     public boolean fullText() {
-        return false;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+        return this.fullText;
     }
 }
