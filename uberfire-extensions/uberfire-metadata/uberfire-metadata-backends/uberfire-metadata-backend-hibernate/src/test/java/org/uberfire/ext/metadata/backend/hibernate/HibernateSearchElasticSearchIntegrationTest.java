@@ -17,12 +17,29 @@
 
 package org.uberfire.ext.metadata.backend.hibernate;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import javax.ws.rs.client.WebTarget;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
@@ -30,6 +47,9 @@ import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.model.ParentIndex;
 import org.uberfire.ext.metadata.backend.hibernate.model.PathIndex;
 import org.uberfire.ext.metadata.preferences.IndexManagerType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(ArquillianConditionalRunner.class)
 public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearchIntegrationTest {
@@ -62,5 +82,35 @@ public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearch
     public void tierDown() {
         cubeController.stop(CONTAINER);
         cubeController.destroy(CONTAINER);
+    }
+
+    @Test
+    public void testElasticSearchShard() throws IOException {
+        KObjectImpl kObject1 = new KObjectImpl();
+        kObject1.setClusterId("java");
+
+        KObjectImpl kObject2 = new KObjectImpl();
+        kObject2.setClusterId("mvel");
+
+        this.provider.index(kObject1);
+        this.provider.index(kObject2);
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials
+                = new UsernamePasswordCredentials("elastic",
+                                                  "changeme");
+        provider.setCredentials(AuthScope.ANY,
+                                credentials);
+
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpHead requestJava = new HttpHead("http://localhost:9200/" + KObjectImpl.class.getCanonicalName().toLowerCase() + ".java");
+        HttpHead requestMvel = new HttpHead("http://localhost:9200/" + KObjectImpl.class.getCanonicalName().toLowerCase() + ".mvel");
+        HttpResponse responseJava = client.execute(requestJava);
+        HttpResponse responseMvel = client.execute(requestMvel);
+
+        assertEquals(200,
+                     responseJava.getStatusLine().getStatusCode());
+        assertEquals(200,
+                     responseMvel.getStatusLine().getStatusCode());
     }
 }

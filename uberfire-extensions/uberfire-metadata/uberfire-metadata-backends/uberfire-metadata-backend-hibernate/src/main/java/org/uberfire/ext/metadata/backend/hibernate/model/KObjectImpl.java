@@ -20,13 +20,16 @@ package org.uberfire.ext.metadata.backend.hibernate.model;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.FullTextFilterDef;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.filter.ShardSensitiveOnlyFilter;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KProperty;
 import org.uberfire.ext.metadata.model.schema.MetaType;
 
 @Indexed
+@FullTextFilterDef(name = "cluster", impl = ShardSensitiveOnlyFilter.class)
 public class KObjectImpl extends Indexable implements KObject {
 
     @Field(analyze = Analyze.NO, store = Store.YES)
@@ -81,5 +84,9 @@ public class KObjectImpl extends Indexable implements KObject {
     @Override
     public boolean fullText() {
         return this.fullText;
+    }
+
+    public void setClusterId(String clusterId) {
+        this.clusterId = clusterId;
     }
 }

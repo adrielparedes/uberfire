@@ -17,7 +17,8 @@
 
 package org.uberfire.ext.metadata.backend.hibernate.configuration;
 
-import org.uberfire.ext.metadata.preferences.ElasticsearchPreferences;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.ElasticsearchPreferences;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 
 public class ElasticSearchConfiguration extends MetadataSearchConfigurationBase {
 
@@ -29,7 +30,11 @@ public class ElasticSearchConfiguration extends MetadataSearchConfigurationBase 
     public static final String HIBERNATE_SEARCH_DEFAULT_ELASTICSEARCH_INDEX_SCHEMA_MANAGEMENT_STRATEGY = "hibernate.search.default.elasticsearch.index_schema_management_strategy";
     public static final String HIBERNATE_SEARCH_DEFAULT_ELASTICSEARCH_DYNAMIC_MAPPING = "hibernate.search.default.elasticsearch.dynamic_mapping";
 
-    public ElasticSearchConfiguration(ElasticsearchPreferences elasticsearchPreferences) {
+    public ElasticSearchConfiguration(HibernateSearchPreferences preferences) {
+        ElasticsearchPreferences elasticsearchPreferences = preferences.getElasticsearchPreferences();
+
+        addProperty(HibernateSearchPreferences.SHARDING_STRATEGY,
+                    preferences.getShardingStrategy());
         addProperty(HIBERNATE_SEARCH_DEFAULT_INDEXMANAGER,
                     INDEX_MANAGER);
         addProperty(HIBERNATE_SEARCH_DEFAULT_ELASTICSEARCH_USERNAME,

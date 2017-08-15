@@ -15,13 +15,19 @@
  *
  */
 
-package org.uberfire.ext.metadata.preferences;
+package org.uberfire.ext.metadata.backend.hibernate.preferences;
+
+import org.uberfire.ext.metadata.backend.hibernate.sharding.KObjectShardIdentifierProvider;
+import org.uberfire.ext.metadata.preferences.IndexManagerType;
+import org.uberfire.ext.metadata.preferences.LucenePreferences;
 
 public class HibernateSearchPreferences {
 
     public static final String INDEX_MANAGER = "hibernate.search.index.manager";
+    public static final String SHARDING_STRATEGY = "hibernate.search.default.sharding_strategy";
 
     private String indexManager;
+    private String shardingStrategy;
 
     private LucenePreferences lucenePreferences;
 
@@ -30,6 +36,9 @@ public class HibernateSearchPreferences {
     public HibernateSearchPreferences() {
         this.indexManager = System.getProperty(INDEX_MANAGER,
                                                IndexManagerType.LUCENE.toString());
+
+        this.shardingStrategy = System.getProperty(SHARDING_STRATEGY,
+                                                   KObjectShardIdentifierProvider.class.getCanonicalName());
 
         this.lucenePreferences = new LucenePreferences();
         this.elasticsearchPreferences = new ElasticsearchPreferences();
@@ -57,5 +66,13 @@ public class HibernateSearchPreferences {
 
     public void setElasticsearchPreferences(ElasticsearchPreferences elasticsearchPreferences) {
         this.elasticsearchPreferences = elasticsearchPreferences;
+    }
+
+    public String getShardingStrategy() {
+        return shardingStrategy;
+    }
+
+    public void setShardingStrategy(String shardingStrategy) {
+        this.shardingStrategy = shardingStrategy;
     }
 }

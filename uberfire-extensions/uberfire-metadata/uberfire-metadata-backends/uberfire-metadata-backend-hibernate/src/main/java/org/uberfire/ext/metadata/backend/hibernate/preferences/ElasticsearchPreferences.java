@@ -15,7 +15,7 @@
  *
  */
 
-package org.uberfire.ext.metadata.preferences;
+package org.uberfire.ext.metadata.backend.hibernate.preferences;
 
 public class ElasticsearchPreferences {
 

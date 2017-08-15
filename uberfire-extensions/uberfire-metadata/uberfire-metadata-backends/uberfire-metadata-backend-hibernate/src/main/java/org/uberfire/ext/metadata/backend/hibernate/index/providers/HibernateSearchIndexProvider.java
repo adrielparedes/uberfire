@@ -158,6 +158,11 @@ public class HibernateSearchIndexProvider implements IndexProvider {
     private List<List<Projection>> executeQuery(HSQuery hsQuery,
                                                 List<Projection> projections) {
 
+        String clusterId = getClusterId(projections);
+
+        hsQuery.enableFullTextFilter("cluster").setParameter("clusterId",
+                                                             clusterId);
+
         hsQuery.projection(projections.stream()
                                    .map(Projection::getFieldName)
                                    .toArray(i -> new String[i]));
@@ -183,5 +188,10 @@ public class HibernateSearchIndexProvider implements IndexProvider {
         }
 
         return result;
+    }
+
+    private String getClusterId(List<Projection> projections) {
+        Optional<Projection> clusterIdValue = projections.stream().filter(projection -> projection.getFieldName().equals("clusterId")).findFirst();
+        return clusterIdValue.map(projection -> (String) projection.getValue()).orElse("default");
     }
 }

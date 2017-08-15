@@ -17,6 +17,7 @@
 
 package org.uberfire.ext.metadata.backend.hibernate.configuration;
 
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 import org.uberfire.ext.metadata.preferences.LucenePreferences;
 
 public class LuceneConfiguration extends MetadataSearchConfigurationBase {
@@ -24,7 +25,11 @@ public class LuceneConfiguration extends MetadataSearchConfigurationBase {
     public static final String HIBERNATE_SEARCH_DEFAULT_DIRECTORY_PROVIDER = "hibernate.search.default.directory_provider";
     public static final String HIBERNATE_SEARCH_DEFAULT_INDEX_BASE = "hibernate.search.default.indexBase";
 
-    public LuceneConfiguration(LucenePreferences lucenePreferences) {
+    public LuceneConfiguration(HibernateSearchPreferences preferences) {
+        LucenePreferences lucenePreferences = preferences.getLucenePreferences();
+
+        addProperty(HibernateSearchPreferences.SHARDING_STRATEGY,
+                    preferences.getShardingStrategy());
         addProperty(HIBERNATE_SEARCH_DEFAULT_DIRECTORY_PROVIDER,
                     lucenePreferences.getDefaultDirectoryProvider());
         addProperty(HIBERNATE_SEARCH_DEFAULT_INDEX_BASE,

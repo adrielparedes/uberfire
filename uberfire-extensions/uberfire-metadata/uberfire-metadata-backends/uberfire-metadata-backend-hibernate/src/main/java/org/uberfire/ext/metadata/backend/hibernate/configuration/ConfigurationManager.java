@@ -17,7 +17,7 @@
 
 package org.uberfire.ext.metadata.backend.hibernate.configuration;
 
-import org.uberfire.ext.metadata.preferences.HibernateSearchPreferences;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 
 public class ConfigurationManager {
 
@@ -27,8 +27,8 @@ public class ConfigurationManager {
 
     public ConfigurationManager(HibernateSearchPreferences preferences) {
         this.preferences = preferences;
-        this.luceneConfiguration = new LuceneConfiguration(preferences.getLucenePreferences());
-        this.elasticSearchConfiguration = new ElasticSearchConfiguration(preferences.getElasticsearchPreferences());
+        this.luceneConfiguration = new LuceneConfiguration(preferences);
+        this.elasticSearchConfiguration = new ElasticSearchConfiguration(preferences);
     }
 
     public MetadataSearchConfigurationBase getSearchConfiguration() {

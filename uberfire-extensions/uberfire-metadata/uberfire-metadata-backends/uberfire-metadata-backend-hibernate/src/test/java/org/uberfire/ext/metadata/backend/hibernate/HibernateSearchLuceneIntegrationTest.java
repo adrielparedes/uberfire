@@ -19,11 +19,14 @@ package org.uberfire.ext.metadata.backend.hibernate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
@@ -32,25 +35,28 @@ import org.uberfire.ext.metadata.backend.hibernate.model.ParentIndex;
 import org.uberfire.ext.metadata.backend.hibernate.model.PathIndex;
 import org.uberfire.ext.metadata.preferences.IndexManagerType;
 
+import static org.junit.Assert.assertTrue;
+
 public class HibernateSearchLuceneIntegrationTest extends HibernateSearchIntegrationTest {
 
     @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
+    public TemporaryFolder testFolderRule = new TemporaryFolder();
+    private File testFolder;
 
     @Before
     public void setUp() {
 
         super.setUp();
 
-        File folder = null;
+        testFolder = null;
         try {
-            folder = testFolder.newFolder();
+            testFolder = testFolderRule.newFolder();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         this.preferences.setIndexManager(IndexManagerType.LUCENE.toString());
-        this.preferences.getLucenePreferences().setDefaultIndexBase(folder.getAbsolutePath());
+        this.preferences.getLucenePreferences().setDefaultIndexBase(testFolder.getAbsolutePath());
 
         SearchIntegrator integrator = new SearchIntegratorBuilder()
                 .withPreferences(preferences)
@@ -63,6 +69,26 @@ public class HibernateSearchLuceneIntegrationTest extends HibernateSearchIntegra
 
     @After
     public void tierDown() {
-        testFolder.delete();
+        testFolderRule.delete();
+    }
+
+    @Test
+    public void testLuceneShard() {
+        KObjectImpl kObject1 = new KObjectImpl();
+        kObject1.setClusterId("java");
+
+        KObjectImpl kObject2 = new KObjectImpl();
+        kObject2.setClusterId("mvel");
+
+        this.provider.index(kObject1);
+        this.provider.index(kObject2);
+
+        File root = this.testFolder;
+        boolean existsJava = Files.exists(Paths.get(root.getPath(),
+                                                    KObjectImpl.class.getCanonicalName() + ".java"));
+        boolean existsMvel = Files.exists(Paths.get(root.getPath(),
+                                                    KObjectImpl.class.getCanonicalName() + ".mvel"));
+        assertTrue(existsJava);
+        assertTrue(existsMvel);
     }
 }

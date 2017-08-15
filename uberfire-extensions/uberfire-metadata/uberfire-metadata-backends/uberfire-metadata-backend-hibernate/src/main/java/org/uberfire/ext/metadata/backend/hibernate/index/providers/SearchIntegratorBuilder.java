@@ -25,7 +25,7 @@ import org.hibernate.search.spi.SearchIntegrator;
 import org.uberfire.ext.metadata.backend.hibernate.configuration.ConfigurationManager;
 import org.uberfire.ext.metadata.backend.hibernate.configuration.MetadataSearchConfigurationBase;
 import org.uberfire.ext.metadata.backend.hibernate.model.Indexable;
-import org.uberfire.ext.metadata.preferences.HibernateSearchPreferences;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 
 public class SearchIntegratorBuilder {
 

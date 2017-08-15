@@ -32,8 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.model.KPropertyImpl;
-import org.uberfire.ext.metadata.backend.hibernate.model.PathIndex;
-import org.uberfire.ext.metadata.preferences.HibernateSearchPreferences;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 
 import static org.junit.Assert.*;
 
@@ -72,64 +71,48 @@ public abstract class HibernateSearchIntegrationTest {
     }
 
     @Test
-    public void testFieldWithNames() throws InterruptedException, IOException {
-
-        PathIndex pathIndex = new PathIndex();
-        pathIndex.setPath("simple/path");
-        pathIndex.setPathOne("path/one");
-
-        this.provider.index(pathIndex);
-
-        Thread.sleep(1000);
-
-        List<PathIndex> entities = this.provider.findAll(PathIndex.class);
-        logger.info(mapper.writeValueAsString(entities));
-        assertEquals("simple/path",
-                     entities.get(0).getPath());
-        assertEquals("path/one",
-                     entities.get(0).getPathOne());
-    }
-
-    @Test
     public void testUpdateIndexedObject() throws InterruptedException {
 
-        PathIndex pathIndex = new PathIndex();
-        pathIndex.setPath("original");
+        KObjectImpl pathIndex = new KObjectImpl();
+        pathIndex.setKey("original");
 
         this.provider.index(pathIndex);
 
         Thread.sleep(1000);
 
-        PathIndex entity = this.provider.findById(PathIndex.class,
-                                                  pathIndex.getId()).get();
+        KObjectImpl entity = this.provider.findById(KObjectImpl.class,
+                                                    pathIndex.getId()).get();
 
-        entity.setPath("updated");
+        entity.setKey("updated");
         this.provider.update(entity);
 
         Thread.sleep(1000);
 
-        PathIndex updated = this.provider.findById(PathIndex.class,
-                                                   pathIndex.getId()).get();
+        KObjectImpl updated = this.provider.findById(KObjectImpl.class,
+                                                     pathIndex.getId()).get();
 
         Thread.sleep(1000);
 
         assertEquals("updated",
-                     updated.getPath());
+                     updated.getKey());
     }
 
     @Test
     public void testSearchById() throws InterruptedException, IOException {
 
-        PathIndex pathIndex = new PathIndex();
-        pathIndex.setPath("simple/path");
-        pathIndex.setPathOne("path/one");
+        KPropertyImpl kProperty = new KPropertyImpl("type",
+                                                    "java",
+                                                    true);
 
-        PathIndex indexed = this.provider.index(pathIndex);
+        KObjectImpl kObject = new KObjectImpl();
+        kObject.setProperties(Arrays.asList(kProperty));
+
+        KObjectImpl indexed = this.provider.index(kObject);
 
         Thread.sleep(1000);
 
-        Optional<PathIndex> found = this.provider.findById(PathIndex.class,
-                                                           indexed.getId());
+        Optional<KObjectImpl> found = this.provider.findById(KObjectImpl.class,
+                                                             indexed.getId());
 
         assertTrue(found.isPresent());
     }
@@ -137,48 +120,62 @@ public abstract class HibernateSearchIntegrationTest {
     @Test
     public void testSearchByQuery() throws InterruptedException {
 
-        PathIndex pathIndex1 = new PathIndex();
-        pathIndex1.setPath("simple/path/one");
-        pathIndex1.setPathOne("path/one");
+        KPropertyImpl kProperty = new KPropertyImpl("type",
+                                                    "java",
+                                                    true);
 
-        PathIndex pathIndex2 = new PathIndex();
-        pathIndex2.setPath("simple/path/two");
-        pathIndex2.setPathOne("path/two");
+        KObjectImpl kObject = new KObjectImpl();
+        kObject.setClusterId("java");
+        kObject.setProperties(Arrays.asList(kProperty));
 
-        PathIndex indexed = this.provider.index(pathIndex1);
-        PathIndex indexed2 = this.provider.index(pathIndex2);
+        KPropertyImpl kProperty2 = new KPropertyImpl("type",
+                                                     "mvel",
+                                                     true);
+
+        KObjectImpl kObject2 = new KObjectImpl();
+        kObject2.setClusterId("java");
+        kObject2.setProperties(Arrays.asList(kProperty2));
+
+        KObjectImpl indexed = this.provider.index(kObject);
+        KObjectImpl indexed2 = this.provider.index(kObject2);
 
         Thread.sleep(1000);
 
-        QueryBuilder queryBuilder = this.provider.getQueryBuilder(PathIndex.class);
-        Query query = queryBuilder.keyword().onField("pathWithName").matching("path/two").createQuery();
-        List<PathIndex> found = this.provider.findByQuery(PathIndex.class,
-                                                          query);
+        QueryBuilder queryBuilder = this.provider.getQueryBuilder(KObjectImpl.class);
+
+        Query query = queryBuilder.keyword()
+                .onField("properties.type")
+                .ignoreFieldBridge()
+                .ignoreAnalyzer()
+                .matching("java")
+                .createQuery();
+
+        List<KObjectImpl> found = this.provider.findByQuery(KObjectImpl.class,
+                                                            query);
 
         assertEquals(1,
                      found.size());
-        assertEquals(indexed2.getPathOne(),
-                     found.get(0).getPathOne());
+        assertEquals(indexed.getId(),
+                     found.get(0).getId());
     }
 
     @Test
     public void testRemoveIndexed() throws InterruptedException, IOException {
 
-        PathIndex pathIndex = new PathIndex();
-        pathIndex.setPath("simple/path");
-        pathIndex.setPathOne("path/one");
+        KObjectImpl pathIndex = new KObjectImpl();
+        pathIndex.setKey("key");
 
-        PathIndex indexed = this.provider.index(pathIndex);
+        KObjectImpl indexed = this.provider.index(pathIndex);
 
         Thread.sleep(1000);
 
-        this.provider.remove(PathIndex.class,
+        this.provider.remove(KObjectImpl.class,
                              indexed.getId());
 
         Thread.sleep(1000);
 
-        Optional<PathIndex> found = this.provider.findById(PathIndex.class,
-                                                           indexed.getId());
+        Optional<KObjectImpl> found = this.provider.findById(KObjectImpl.class,
+                                                             indexed.getId());
 
         assertFalse(found.isPresent());
     }
@@ -195,6 +192,7 @@ public abstract class HibernateSearchIntegrationTest {
 
         KObjectImpl kObject = new KObjectImpl();
         kObject.setKey("Key!!!");
+        kObject.setClusterId("java");
         kObject.setProperties(Arrays.asList(fieldName,
                                             methodName));
 
