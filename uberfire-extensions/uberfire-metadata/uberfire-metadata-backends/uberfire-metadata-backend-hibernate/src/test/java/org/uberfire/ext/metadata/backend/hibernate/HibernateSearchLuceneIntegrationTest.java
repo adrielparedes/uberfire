@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.uberfire.ext.metadata.backend.hibernate.configuration.LuceneConfiguration;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
@@ -56,7 +57,8 @@ public class HibernateSearchLuceneIntegrationTest extends HibernateSearchIntegra
         }
 
         this.preferences.setIndexManager(IndexManagerType.LUCENE.toString());
-        this.preferences.getLucenePreferences().setDefaultIndexBase(testFolder.getAbsolutePath());
+        this.preferences.getLucenePreferences().setDefaultIndexBase(new File(testFolder.getAbsolutePath(),
+                                                                             ".index").getAbsolutePath());
 
         SearchIntegrator integrator = new SearchIntegratorBuilder()
                 .withPreferences(preferences)
@@ -83,7 +85,8 @@ public class HibernateSearchLuceneIntegrationTest extends HibernateSearchIntegra
         this.provider.index(kObject1);
         this.provider.index(kObject2);
 
-        File root = this.testFolder;
+        File root = new File(this.testFolder,
+                             ".index");
         boolean existsJava = Files.exists(Paths.get(root.getPath(),
                                                     KObjectImpl.class.getCanonicalName() + ".java"));
         boolean existsMvel = Files.exists(Paths.get(root.getPath(),

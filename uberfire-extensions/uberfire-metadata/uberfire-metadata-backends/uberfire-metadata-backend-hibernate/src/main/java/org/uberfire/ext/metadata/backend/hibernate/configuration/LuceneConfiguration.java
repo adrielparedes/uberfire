@@ -17,10 +17,14 @@
 
 package org.uberfire.ext.metadata.backend.hibernate.configuration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 import org.uberfire.ext.metadata.preferences.LucenePreferences;
 
 public class LuceneConfiguration extends MetadataSearchConfigurationBase {
+
+    private Logger logger = LoggerFactory.getLogger(LuceneConfiguration.class);
 
     public static final String HIBERNATE_SEARCH_DEFAULT_DIRECTORY_PROVIDER = "hibernate.search.default.directory_provider";
     public static final String HIBERNATE_SEARCH_DEFAULT_INDEX_BASE = "hibernate.search.default.indexBase";
@@ -34,5 +38,11 @@ public class LuceneConfiguration extends MetadataSearchConfigurationBase {
                     lucenePreferences.getDefaultDirectoryProvider());
         addProperty(HIBERNATE_SEARCH_DEFAULT_INDEX_BASE,
                     lucenePreferences.getDefaultIndexBase());
+
+        if (logger.isDebugEnabled()) {
+            this.getProperties().forEach((key, value) -> logger.debug("{}={}",
+                                                                      key,
+                                                                      value));
+        }
     }
 }

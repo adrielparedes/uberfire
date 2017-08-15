@@ -17,20 +17,37 @@
 
 package org.uberfire.ext.metadata.preferences;
 
+import java.io.File;
+
 public class LucenePreferences {
 
-    public static final String DEFAULT_DIRECTORY_PROVIDER = "lucene.default.directory.provider";
-    public static final String DEFAULT_INDEX_BASE = "lucene.default.index.base";
+    public static final String DEFAULT_DIRECTORY_PROVIDER = "org.uberfire.metadata.lucene.default.directory.provider";
+    public static final String DEFAULT_INDEX_BASE = "org.uberfire.metadata.lucene.default.index.base";
 
     private String defaultDirectoryProvider;
 
     private String defaultIndexBase;
 
     public LucenePreferences() {
+
         this.defaultDirectoryProvider = System.getProperty(DEFAULT_DIRECTORY_PROVIDER,
                                                            "filesystem");
-        this.defaultIndexBase = System.getProperty(DEFAULT_INDEX_BASE,
-                                                   "/tmp/lucene/index");
+        String indexBase = System.getProperty(DEFAULT_INDEX_BASE,
+                                              "");
+
+        File indexFile = getIndexBaseFile(indexBase);
+
+        this.defaultIndexBase = indexFile.getAbsolutePath();
+    }
+
+    private File getIndexBaseFile(String indexBase) {
+        File indexFile = new File(indexBase.trim(),
+                                  ".index");
+        if (indexBase.isEmpty()) {
+            indexFile = new File(".",
+                                 ".index");
+        }
+        return indexFile;
     }
 
     public String getDefaultDirectoryProvider() {
