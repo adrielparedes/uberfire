@@ -33,6 +33,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.TotalHitCountCollector;
 import org.apache.lucene.search.WildcardQuery;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryBuilder;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexManager;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.search.ClusterSegment;
@@ -54,15 +55,14 @@ import static org.uberfire.ext.metadata.engine.MetaIndexEngine.FULL_TEXT_FIELD;
 public class LuceneSearchIndex implements SearchIndex {
 
     private final LuceneIndexManager indexManager;
-    private final QueryParser queryParser;
+    private final QueryBuilder queryBuilder;
 
     public LuceneSearchIndex(final LuceneIndexManager indexManager,
                              final Analyzer analyzer) {
         this.indexManager = checkNotNull("lucene",
                                          indexManager);
-        this.queryParser = new QueryParser(FULL_TEXT_FIELD,
-                                           analyzer);
-        this.queryParser.setAllowLeadingWildcard(true);
+
+        this.queryBuilder = new QueryBuilder(analyzer);
     }
 
     @Override
@@ -77,8 +77,8 @@ public class LuceneSearchIndex implements SearchIndex {
         }
         final int totalNumHitsEstimate = searchByAttrsHits(attrs,
                                                            clusterSegments);
-        return search(buildQuery(attrs,
-                                 clusterSegments),
+        return search(queryBuilder.buildQuery(attrs,
+                                              clusterSegments),
                       totalNumHitsEstimate,
                       filter,
                       clusterSegments);
@@ -93,8 +93,8 @@ public class LuceneSearchIndex implements SearchIndex {
         }
         final int totalNumHitsEstimate = fullTextSearchHits(term,
                                                             clusterSegments);
-        return search(buildQuery(term,
-                                 clusterSegments),
+        return search(queryBuilder.buildQuery(term,
+                                              clusterSegments),
                       totalNumHitsEstimate,
                       filter,
                       clusterSegments);
@@ -109,8 +109,8 @@ public class LuceneSearchIndex implements SearchIndex {
         if (attrs == null || attrs.size() == 0) {
             return 0;
         }
-        return searchHits(buildQuery(attrs,
-                                     clusterSegments),
+        return searchHits(queryBuilder.buildQuery(attrs,
+                                                  clusterSegments),
                           clusterSegments);
     }
 
@@ -120,8 +120,8 @@ public class LuceneSearchIndex implements SearchIndex {
         if (clusterSegments == null || clusterSegments.length == 0) {
             return 0;
         }
-        return searchHits(buildQuery(term,
-                                     clusterSegments),
+        return searchHits(queryBuilder.buildQuery(term,
+                                                  clusterSegments),
                           clusterSegments);
     }
 
@@ -166,113 +166,5 @@ public class LuceneSearchIndex implements SearchIndex {
         }
 
         return result;
-    }
-
-    private Query buildQuery(final Map<String, ?> attrs,
-                             final ClusterSegment... clusterSegments) {
-        final BooleanQuery query = new BooleanQuery();
-        for (final Map.Entry<String, ?> entry : attrs.entrySet()) {
-            if (entry.getValue() instanceof DateRange) {
-                final Long from = ((DateRange) entry.getValue()).after().getTime();
-                final Long to = ((DateRange) entry.getValue()).before().getTime();
-                query.add(newLongRange(entry.getKey(),
-                                       from,
-                                       to,
-                                       true,
-                                       true),
-                          MUST);
-            } else if (entry.getValue() instanceof String) {
-                query.add(new WildcardQuery(new Term(entry.getKey(),
-                                                     entry.getValue().toString())),
-                          MUST);
-            } else if (entry.getValue() instanceof Boolean) {
-                query.add(new TermQuery(new Term(entry.getKey(),
-                                                 ((Boolean) entry.getValue()) ? "0" : "1")),
-                          MUST);
-            }
-        }
-        return composeQuery(query,
-                            clusterSegments);
-    }
-
-    private Query buildQuery(final String term,
-                             final ClusterSegment... clusterSegments) {
-
-        Query fullText;
-        try {
-            fullText = queryParser.parse(term);
-            if (fullText.toString().isEmpty()) {
-                fullText = new WildcardQuery(new Term(FULL_TEXT_FIELD,
-                                                      format(term) + "*"));
-            }
-        } catch (ParseException ex) {
-            fullText = new WildcardQuery(new Term(FULL_TEXT_FIELD,
-                                                  format(term)));
-        }
-
-        return composeQuery(fullText,
-                            clusterSegments);
-    }
-
-    private Query composeQuery(final Query query,
-                               final ClusterSegment... clusterSegments) {
-        if (clusterSegments == null || clusterSegments.length == 0) {
-            return query;
-        }
-
-        final BooleanQuery booleanQuery = new BooleanQuery();
-        booleanQuery.add(query,
-                         MUST);
-
-        final BooleanClause.Occur occur = (clusterSegments.length == 1 ? MUST : SHOULD);
-        for (ClusterSegment clusterSegment : clusterSegments) {
-            final BooleanQuery clusterSegmentQuery = new BooleanQuery();
-            addClusterIdTerms(clusterSegmentQuery,
-                              clusterSegment);
-            addSegmentIdTerms(clusterSegmentQuery,
-                              clusterSegment);
-            booleanQuery.add(clusterSegmentQuery,
-                             occur);
-        }
-
-        return booleanQuery;
-    }
-
-    private void addClusterIdTerms(final BooleanQuery query,
-                                   final ClusterSegment clusterSegment) {
-        if (clusterSegment.getClusterId() != null) {
-            final Query cluster = new TermQuery(new Term("cluster.id",
-                                                         clusterSegment.getClusterId()));
-            query.add(cluster,
-                      MUST);
-        }
-    }
-
-    private void addSegmentIdTerms(final BooleanQuery query,
-                                   final ClusterSegment clusterSegment) {
-        if (clusterSegment.segmentIds() == null || clusterSegment.segmentIds().length == 0) {
-            return;
-        }
-
-        if (clusterSegment.segmentIds().length == 1) {
-            final Query segment = new TermQuery(new Term("segment.id",
-                                                         clusterSegment.segmentIds()[0]));
-            query.add(segment,
-                      MUST);
-        } else {
-            final BooleanQuery segments = new BooleanQuery();
-            for (final String segmentId : clusterSegment.segmentIds()) {
-                final Query segment = new TermQuery(new Term("segment.id",
-                                                             segmentId));
-                segments.add(segment,
-                             SHOULD);
-            }
-            query.add(segments,
-                      MUST);
-        }
-    }
-
-    private String format(final String term) {
-        return term.toLowerCase();
     }
 }

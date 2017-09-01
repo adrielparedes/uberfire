@@ -18,11 +18,15 @@
 package org.uberfire.ext.metadata.backend.hibernate.index.providers;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
 import org.hibernate.search.backend.spi.Work;
 import org.hibernate.search.backend.spi.WorkType;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -31,13 +35,16 @@ import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.uberfire.ext.metadata.backend.hibernate.index.DocumentIdGenerator;
 import org.uberfire.ext.metadata.backend.hibernate.model.Indexable;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.model.KCluster;
 
 public class HibernateSearchIndexProvider implements IndexProvider {
 
     private SearchIntegrator searchIntegrator;
     private Logger logger = LoggerFactory.getLogger(HibernateSearchIndexProvider.class);
+
+    private final Map<String, KieTransactionContext> batchMode = new ConcurrentHashMap<>();
 
     private HibernateSearchAnnotationProcessor annotationProcessor;
 
@@ -54,12 +61,12 @@ public class HibernateSearchIndexProvider implements IndexProvider {
                          indexable.getClass().getCanonicalName());
         }
 
-        indexable.setId(DocumentIdGenerator.generate());
-
         Work work = new Work(indexable,
                              indexable.getId(),
                              WorkType.ADD);
-        performWork(work);
+
+        performWork(work,
+                    indexable);
         return indexable;
     }
 
@@ -68,7 +75,8 @@ public class HibernateSearchIndexProvider implements IndexProvider {
         Work work = new Work(indexable,
                              indexable.getId(),
                              WorkType.UPDATE);
-        this.performWork(work);
+        this.performWork(work,
+                         indexable);
         return indexable;
     }
 
@@ -87,13 +95,35 @@ public class HibernateSearchIndexProvider implements IndexProvider {
             Work work = new Work(instance,
                                  id,
                                  WorkType.DELETE);
-            performWork(work);
+            performWork(work,
+                        instance);
         });
     }
 
     @Override
     public <T extends Indexable> QueryBuilder getQueryBuilder(Class<T> clazz) {
         return this.searchIntegrator.buildQueryBuilder().forEntity(clazz).get();
+    }
+
+    @Override
+    public synchronized KieTransactionContext startBatch(String clusterId) {
+        return batchMode.computeIfAbsent(clusterId,
+                                         kCluster -> new KieTransactionContext());
+    }
+
+    @Override
+    public void commit(String clusterId) {
+        this.batchMode.get(clusterId).end();
+        this.batchMode.remove(clusterId);
+    }
+
+    @Override
+    public boolean isTransactionInProgress(KCluster cluster) {
+        boolean inProgress = this.batchMode.get(cluster.getClusterId()) != null && this.batchMode.get(cluster.getClusterId()).isTransactionInProgress();
+        logger.info("In Progress: {} -> {}",
+                    cluster.getClusterId(),
+                    inProgress);
+        return inProgress;
     }
 
     @Override
@@ -115,9 +145,7 @@ public class HibernateSearchIndexProvider implements IndexProvider {
 
     @Override
     public <T extends Indexable> List<T> findByQuery(Class<T> clazz,
-                                                     Query query) {
-        HSQuery hsQuery = this.searchIntegrator.createHSQuery(query,
-                                                              clazz);
+                                                     HSQuery hsQuery) {
 
         List<Projection> projections = annotationProcessor.getProjections(clazz);
 
@@ -135,6 +163,28 @@ public class HibernateSearchIndexProvider implements IndexProvider {
     }
 
     @Override
+    public <T extends Indexable> List<T> findByQuery(Class<T> clazz,
+                                                     Query query) {
+        HSQuery hsQuery = this.searchIntegrator.createHSQuery(query,
+                                                              clazz);
+
+        return this.findByQuery(clazz,
+                                hsQuery);
+    }
+
+    @Override
+    public <T extends Indexable> List<T> findByQuery(Class<T> clazz,
+                                                     Query query,
+                                                     Sort sort) {
+        HSQuery hsQuery = this.searchIntegrator.createHSQuery(query,
+                                                              clazz);
+
+        hsQuery.sort(sort);
+        return this.findByQuery(clazz,
+                                hsQuery);
+    }
+
+    @Override
     public <T extends Indexable> Optional<T> findById(Class<T> clazz,
                                                       String id) {
         QueryBuilder qb = this.searchIntegrator.buildQueryBuilder()
@@ -148,11 +198,19 @@ public class HibernateSearchIndexProvider implements IndexProvider {
                 .findFirst();
     }
 
-    private void performWork(Work work) {
-        KieTransactionContext tc = new KieTransactionContext();
-        this.searchIntegrator.getWorker().performWork(work,
-                                                      tc);
-        tc.end();
+    private <T> void performWork(Work work,
+                                 T indexable) {
+        Optional<KieTransactionContext> optional = Optional.ofNullable(this.batchMode.get(((KObjectImpl) indexable).getClusterId()));
+
+        optional.ifPresent(tc -> this.searchIntegrator.getWorker().performWork(work,
+                                                                               tc));
+
+        if (!optional.isPresent()) {
+            KieTransactionContext tc = new KieTransactionContext();
+            this.searchIntegrator.getWorker().performWork(work,
+                                                          tc);
+            tc.end();
+        }
     }
 
     private List<List<Projection>> executeQuery(HSQuery hsQuery,

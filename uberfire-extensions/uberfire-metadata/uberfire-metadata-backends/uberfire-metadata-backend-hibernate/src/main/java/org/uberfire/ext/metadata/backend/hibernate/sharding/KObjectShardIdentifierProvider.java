@@ -53,9 +53,9 @@ public class KObjectShardIdentifierProvider extends ShardIdentifierProviderTempl
             throw new RuntimeException("");
         }
 
-        String identifier = Optional.ofNullable(document.getField("clusterId")).orElse(new StringField("clusterId",
-                                                                                                       "default",
-                                                                                                       Field.Store.YES)).stringValue();
+        String identifier = Optional.ofNullable(document.getField("cluster.id")).orElse(new StringField("cluster.id",
+                                                                                                        "default",
+                                                                                                        Field.Store.YES)).stringValue();
         addShard(identifier);
 
         if (logger.isDebugEnabled()) {

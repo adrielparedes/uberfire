@@ -21,10 +21,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.hibernate.search.query.engine.spi.HSQuery;
 import org.uberfire.ext.metadata.backend.hibernate.model.Indexable;
+import org.uberfire.ext.metadata.model.KCluster;
 
 public interface IndexProvider {
+
+    String CUSTOM_FIELD_FILENAME = "filename";
 
     <T extends Indexable> T index(T indexable);
 
@@ -35,6 +40,13 @@ public interface IndexProvider {
     <T extends Indexable> List<T> findByQuery(Class<T> clazz,
                                               Query query);
 
+    <T extends Indexable> List<T> findByQuery(Class<T> clazz,
+                                              HSQuery hsQuery);
+
+    <T extends Indexable> List<T> findByQuery(Class<T> clazz,
+                                              Query query,
+                                              Sort sort);
+
     <T extends Indexable> Optional<T> findById(Class<T> clazz,
                                                String id);
 
@@ -42,4 +54,10 @@ public interface IndexProvider {
                 String id);
 
     <T extends Indexable> QueryBuilder getQueryBuilder(Class<T> clazz);
+
+    KieTransactionContext startBatch(String clusterId);
+
+    void commit(String clusterId);
+
+    boolean isTransactionInProgress(KCluster cluster);
 }

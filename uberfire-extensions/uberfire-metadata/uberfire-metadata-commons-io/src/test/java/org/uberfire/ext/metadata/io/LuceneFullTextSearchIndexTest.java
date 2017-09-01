@@ -17,56 +17,22 @@
 package org.uberfire.ext.metadata.io;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
+import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.WildcardQuery;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.uberfire.commons.async.DescriptiveThreadFactory;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
-import org.uberfire.ext.metadata.engine.Indexer;
-import org.uberfire.ext.metadata.model.KObject;
-import org.uberfire.ext.metadata.model.KObjectKey;
-import org.uberfire.ext.metadata.model.KProperty;
-import org.uberfire.ext.metadata.model.schema.MetaType;
-import org.uberfire.io.IOService;
-import org.uberfire.io.attribute.DublinCoreView;
-import org.uberfire.java.nio.base.version.VersionAttributeView;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.java.nio.file.Path;
 
 import static org.junit.Assert.*;
 import static org.uberfire.ext.metadata.engine.MetaIndexEngine.FULL_TEXT_FIELD;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 @RunWith(org.jboss.byteman.contrib.bmunit.BMUnitRunner.class)
 @BMScript(value = "byteman/index.btm")
 public class LuceneFullTextSearchIndexTest extends BaseIndexTest {
-
-    @Override
-    protected IOService ioService() {
-        if (ioService == null) {
-            config = new LuceneConfigBuilder()
-                    .withInMemoryMetaModelStore()
-                    .useDirectoryBasedIndex()
-                    .useInMemoryDirectory()
-                    .build();
-
-            ioService = new IOServiceIndexedImpl(config.getIndexEngine(),
-                                                 Executors.newCachedThreadPool(new DescriptiveThreadFactory()),
-                                                 DublinCoreView.class,
-                                                 VersionAttributeView.class);
-
-            IndexersFactory.addIndexer(new MockIndexer());
-        }
-        return ioService;
-    }
 
     @Override
     protected String[] getRepositoryNames() {
@@ -82,132 +48,42 @@ public class LuceneFullTextSearchIndexTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        final Index index = config.getIndexManager().get(toKCluster(path1.getFileSystem()));
-
-        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-
         {
-            final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-            searcher.search(new WildcardQuery(new Term(FULL_TEXT_FIELD,
-                                                       "*file*")),
-                            collector);
-
-            final ScoreDoc[] hits = collector.topDocs().scoreDocs;
-            listHitPaths(searcher,
-                         hits);
+            List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
+                                                                     new WildcardQuery(new Term(FULL_TEXT_FIELD,
+                                                                                                "*file*")));
 
             assertEquals(1,
-                         hits.length);
+                         found.size());
         }
 
         {
-            final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-            searcher.search(new WildcardQuery(new Term(FULL_TEXT_FIELD,
-                                                       "*mydrlfile1*")),
-                            collector);
-
-            final ScoreDoc[] hits = collector.topDocs().scoreDocs;
-            listHitPaths(searcher,
-                         hits);
+            List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
+                                                                     new WildcardQuery(new Term(FULL_TEXT_FIELD,
+                                                                                                "*mydrlfile1*")));
 
             assertEquals(1,
-                         hits.length);
+                         found.size());
         }
 
         setupCountDown(2);
 
-        final Path path2 = getBasePath(this.getClass().getSimpleName()).resolve("a.drl");
+        final Path path2 = getBasePath(this.getClass().getSimpleName()).resolve("s.drl");
         ioService().write(path2,
                           "Some cheese");
 
         waitForCountDown(5000);
 
         {
-            final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-            searcher.search(new WildcardQuery(new Term(FULL_TEXT_FIELD,
-                                                       "a*")),
-                            collector);
-
-            final ScoreDoc[] hits = collector.topDocs().scoreDocs;
-            listHitPaths(searcher,
-                         hits);
+            List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
+                                                                     new WildcardQuery(new Term(FULL_TEXT_FIELD,
+                                                                                                "s*")));
 
             assertEquals(1,
-                         hits.length);
-        }
-
-        ((LuceneIndex) index).nrtRelease(searcher);
-    }
-
-    private static class MockIndexer implements Indexer {
-
-        @Override
-        public boolean supportsPath(final Path path) {
-            return true;
-        }
-
-        @Override
-        public KObject toKObject(final Path path) {
-            return new TestKObjectWrapper(KObjectUtil.toKObject(path));
-        }
-
-        @Override
-        public KObjectKey toKObjectKey(final Path path) {
-            return new TestKObjectKeyWrapper(KObjectUtil.toKObjectKey(path));
-        }
-    }
-
-    private static class TestKObjectKeyWrapper implements KObjectKey {
-
-        protected KObjectKey delegate;
-
-        private TestKObjectKeyWrapper(final KObjectKey delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public String getId() {
-            return delegate.getId() + "-refactoring";
-        }
-
-        @Override
-        public MetaType getType() {
-            return delegate.getType();
-        }
-
-        @Override
-        public String getClusterId() {
-            return delegate.getClusterId();
-        }
-
-        @Override
-        public String getSegmentId() {
-            return delegate.getSegmentId();
-        }
-
-        @Override
-        public String getKey() {
-            return delegate.getKey();
-        }
-    }
-
-    private static class TestKObjectWrapper extends TestKObjectKeyWrapper implements KObject {
-
-        private TestKObjectWrapper(final KObject delegate) {
-            super(delegate);
-        }
-
-        @Override
-        public Iterable<KProperty<?>> getProperties() {
-            return ((KObject) delegate).getProperties();
-        }
-
-        @Override
-        public boolean fullText() {
-            return false;
+                         found.size());
         }
     }
 }

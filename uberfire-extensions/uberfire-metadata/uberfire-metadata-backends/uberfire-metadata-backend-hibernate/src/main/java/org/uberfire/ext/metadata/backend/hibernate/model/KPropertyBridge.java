@@ -17,10 +17,13 @@
 
 package org.uberfire.ext.metadata.backend.hibernate.model;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexableField;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.MetadataProvidingFieldBridge;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
@@ -28,6 +31,7 @@ import org.hibernate.search.bridge.spi.FieldMetadataBuilder;
 import org.hibernate.search.bridge.spi.FieldType;
 import org.hibernate.search.elasticsearch.bridge.spi.Elasticsearch;
 import org.hibernate.search.elasticsearch.cfg.DynamicType;
+import org.uberfire.ext.metadata.backend.hibernate.index.SimpleFieldFactory;
 
 public class KPropertyBridge implements TwoWayFieldBridge,
                                         MetadataProvidingFieldBridge {
@@ -37,10 +41,10 @@ public class KPropertyBridge implements TwoWayFieldBridge,
                       Document document) {
         List<KPropertyImpl> children = document.getFields().stream()
                 .filter(indexableField -> indexableField.name().contains(name + "."))
-                .map(indexableField -> new KPropertyImpl(indexableField.name().replace(name + ".",
-                                                                                       ""),
-                                                         indexableField.stringValue(),
-                                                         false)).collect(Collectors.toList());
+                .map(indexableField -> new KPropertyImpl<Object>(indexableField.name().replace(name + ".",
+                                                                                               ""),
+                                                                 indexableField.stringValue(),
+                                                                 false)).collect(Collectors.toList());
         return children;
     }
 
@@ -54,13 +58,14 @@ public class KPropertyBridge implements TwoWayFieldBridge,
                     Object value,
                     Document document,
                     LuceneOptions luceneOptions) {
-
-        List<KPropertyImpl> list = (List<KPropertyImpl>) value;
+        SimpleFieldFactory fieldFactory = new SimpleFieldFactory();
+        List<KPropertyImpl<?>> list = (List<KPropertyImpl<?>>) value;
         if (list != null) {
-            list.forEach(kProperty -> luceneOptions.addFieldToDocument(
-                    name + "." + kProperty.getName(),
-                    kProperty.getValue(),
-                    document));
+
+            list.forEach(kProperty -> {
+                IndexableField[] fields = fieldFactory.build(kProperty);
+                Arrays.stream(fields).forEach(indexableField -> document.add(indexableField));
+            });
         }
     }
 
@@ -70,6 +75,8 @@ public class KPropertyBridge implements TwoWayFieldBridge,
         builder.field(name,
                       FieldType.OBJECT)
                 .mappedOn(Elasticsearch.class)
-                .dynamic(DynamicType.TRUE);
+                .dynamic(DynamicType.TRUE)
+                .field("properties.filenamesorted",
+                       FieldType.STRING).sortable(true);
     }
 }

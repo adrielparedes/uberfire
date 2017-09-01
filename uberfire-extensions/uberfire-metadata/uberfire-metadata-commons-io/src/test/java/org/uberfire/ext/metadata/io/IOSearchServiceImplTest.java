@@ -40,7 +40,7 @@ public class IOSearchServiceImplTest extends BaseIndexTest {
     public void testFullTextSearch() throws IOException, InterruptedException {
         setupCountDown(3);
 
-        final IOSearchServiceImpl searchIndex = new IOSearchServiceImpl(config.getSearchIndex(),
+        final IOSearchServiceImpl searchIndex = new IOSearchServiceImpl(this.searchIndex,
                                                                         ioService());
 
         final Path path1 = getBasePath(this.getClass().getSimpleName()).resolve("g.txt");

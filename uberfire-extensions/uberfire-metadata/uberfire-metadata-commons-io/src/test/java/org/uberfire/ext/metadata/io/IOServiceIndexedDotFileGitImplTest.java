@@ -18,6 +18,7 @@ package org.uberfire.ext.metadata.io;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
@@ -27,6 +28,7 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.ext.metadata.model.schema.MetaObject;
@@ -63,32 +65,27 @@ public class IOServiceIndexedDotFileGitImplTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        final MetaObject mo = config.getMetaModelStore().getMetaObject(Path.class.getName());
+        //TODO: Do I need MetaModel?
+//        final MetaObject mo = config.getMetaModelStore().getMetaObject(Path.class.getName());
 
-        assertNotNull(mo);
-        assertNotNull(mo.getProperty("name"));
-        assertEquals(1,
-                     mo.getProperty("name").getTypes().size());
-        assertTrue(mo.getProperty("name").getTypes().contains(String.class));
+//        assertNotNull(mo);
+//        assertNotNull(mo.getProperty("name"));
+//        assertEquals(1,
+//                     mo.getProperty("name").getTypes().size());
+//        assertTrue(mo.getProperty("name").getTypes().contains(String.class));
 
-        final Index index = config.getIndexManager().get(toKCluster(path.getFileSystem()));
+//        final Index index = config.getIndexManager().get(toKCluster(path.getFileSystem()));
+//
+//        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
+//
+//        final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-
-        final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
-
-        searcher.search(new TermQuery(new Term("name",
-                                               "value")),
-                        collector);
-
-        final ScoreDoc[] hits = collector.topDocs().scoreDocs;
-        listHitPaths(searcher,
-                     hits);
+        List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
+                                                                 new TermQuery(new Term("properties.name",
+                                                                                        "value")));
 
         assertEquals(1,
-                     hits.length);
-
-        ((LuceneIndex) index).nrtRelease(searcher);
+                     found.size());
     }
 
     private FileAttribute<?>[] getFileAttributes() {

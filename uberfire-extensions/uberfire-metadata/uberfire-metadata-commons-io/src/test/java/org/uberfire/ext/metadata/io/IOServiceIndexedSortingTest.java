@@ -18,6 +18,7 @@ package org.uberfire.ext.metadata.io;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
@@ -29,6 +30,7 @@ import org.apache.lucene.search.WildcardQuery;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 import org.uberfire.ext.metadata.engine.Index;
@@ -60,35 +62,27 @@ public class IOServiceIndexedSortingTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        final Index index = config.getIndexManager().get(toKCluster(base.getFileSystem()));
-
-        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-
         {
-            final Sort sort = new Sort(new SortField(FieldFactory.FILE_NAME_FIELD_SORTED,
+            final Sort sort = new Sort(new SortField("properties." + FieldFactory.FILE_NAME_FIELD_SORTED,
                                                      SortField.Type.STRING));
-            final Query query = new WildcardQuery(new Term("filename",
-                                                           "*.txt"));
+            final Query query = new WildcardQuery(new Term("properties.filename",
+                                                           "*txt"));
 
-            final TopFieldDocs docHits = searcher.search(query,
-                                                         Integer.MAX_VALUE,
-                                                         sort);
+            List<KObjectImpl> hits = this.indexProvider.findByQuery(KObjectImpl.class,
+                                                                    query,
+                                                                    sort);
 
-            listHitPaths(searcher,
-                         docHits.scoreDocs);
             assertEquals(4,
-                         docHits.totalHits);
+                         hits.size());
             assertEquals("aFile.txt",
-                         searcher.doc(docHits.scoreDocs[0].doc).get("filename"));
+                         hits.get(0).getProperty("filename").get().getValue());
             assertEquals("bFile.txt",
-                         searcher.doc(docHits.scoreDocs[1].doc).get("filename"));
+                         hits.get(1).getProperty("filename").get().getValue());
             assertEquals("cFile1.txt",
-                         searcher.doc(docHits.scoreDocs[2].doc).get("filename"));
+                         hits.get(2).getProperty("filename").get().getValue());
             assertEquals("CFile2.txt",
-                         searcher.doc(docHits.scoreDocs[3].doc).get("filename"));
+                         hits.get(3).getProperty("filename").get().getValue());
         }
-
-        ((LuceneIndex) index).nrtRelease(searcher);
     }
 
     private Path writeFile(final String fileName) {

@@ -26,7 +26,7 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
 import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
 import org.uberfire.ext.metadata.backend.lucene.fields.SimpleFieldFactory;
-import org.uberfire.ext.metadata.backend.lucene.index.CustomAnalyzerWrapperFactory;
+import org.uberfire.ext.metadata.CustomAnalyzerWrapperFactory;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 import org.uberfire.ext.metadata.backend.lucene.index.directory.DirectoryFactory;
 import org.uberfire.ext.metadata.backend.lucene.index.directory.DirectoryType;

@@ -17,25 +17,20 @@ package org.uberfire.ext.metadata.io;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.jboss.byteman.contrib.bmunit.BMUnitConfig;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
-import org.uberfire.java.nio.file.OpenOption;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
 
 import static org.junit.Assert.*;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 @RunWith(BMUnitRunner.class)
 @BMUnitConfig(debug = true)
@@ -53,7 +48,7 @@ public class IOServiceIndexedDeleteFileTest extends BaseIndexTest {
         final Path path = getBasePath(this.getClass().getSimpleName()).resolve("delete-me.txt");
         ioService().write(path,
                           "content",
-                          Collections.<OpenOption>emptySet(),
+                          Collections.emptySet(),
                           new FileAttribute<Object>() {
                               @Override
                               public String name() {
@@ -68,22 +63,13 @@ public class IOServiceIndexedDeleteFileTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        final Index index = config.getIndexManager().get(toKCluster(path.getFileSystem()));
-
-        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-
-        final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
-
         //Check the file has been indexed
-        searcher.search(new TermQuery(new Term("delete",
-                                               "me")),
-                        collector);
+        List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
+                                                                 new TermQuery(new Term("properties.delete",
+                                                                                        "me")));
 
-        ScoreDoc[] hits = collector.topDocs().scoreDocs;
-        listHitPaths(searcher,
-                     hits);
         assertEquals(1,
-                     hits.length);
+                     found.size());
 
         setupCountDown(2);
 
@@ -92,14 +78,11 @@ public class IOServiceIndexedDeleteFileTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        searcher.search(new TermQuery(new Term("delete",
-                                               "me")),
-                        collector);
+        found = this.indexProvider.findByQuery(KObjectImpl.class,
+                                               new TermQuery(new Term("properties.delete",
+                                                                      "me")));
 
-        hits = collector.topDocs().scoreDocs;
         assertEquals(0,
-                     hits.length);
-
-        ((LuceneIndex) index).nrtRelease(searcher);
+                     found.size());
     }
 }

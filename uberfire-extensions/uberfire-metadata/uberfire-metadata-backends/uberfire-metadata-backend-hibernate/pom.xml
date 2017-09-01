@@ -33,7 +33,7 @@
 
 
   <properties>
-    <version.org.hibernate.search>5.8.0-SNAPSHOT</version.org.hibernate.search>
+    <version.org.hibernate.search>5.8.0.CR1</version.org.hibernate.search>
   </properties>
 
 

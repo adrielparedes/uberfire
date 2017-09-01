@@ -17,36 +17,47 @@
 
 package org.uberfire.ext.metadata.backend.hibernate.model;
 
+import java.util.Optional;
+import java.util.stream.StreamSupport;
+
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.FullTextFilterDef;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.filter.ShardSensitiveOnlyFilter;
+import org.uberfire.ext.metadata.engine.MetaIndexEngine;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KProperty;
 import org.uberfire.ext.metadata.model.schema.MetaType;
 
 @Indexed
 @FullTextFilterDef(name = "cluster", impl = ShardSensitiveOnlyFilter.class)
+@ClassBridge(name = MetaIndexEngine.FULL_TEXT_FIELD, analyze = Analyze.YES, store = Store.YES, impl = FullTextClassBridge.class)
+@Analyzer(impl = WhitespaceAnalyzer.class)
 public class KObjectImpl extends Indexable implements KObject {
 
-    @Field(analyze = Analyze.NO, store = Store.YES)
+    @Field(name = "cluster.id", analyze = Analyze.NO, store = Store.YES)
     private String clusterId;
 
-    @Field(analyze = Analyze.NO, store = Store.YES)
+    @Field(name = "segment.id", analyze = Analyze.NO, store = Store.YES)
     private String segmentId;
 
-    @Field(analyze = Analyze.NO, store = Store.YES)
+    @Field(analyze = Analyze.YES, store = Store.YES)
     private String key;
 
-    @Field(analyze = Analyze.NO, store = Store.YES)
+    @Field(analyze = Analyze.YES, store = Store.YES)
     @FieldBridge(impl = KPropertyBridge.class)
     private Iterable<KProperty<?>> properties;
 
-    @Field(analyze = Analyze.NO, store = Store.YES)
     private boolean fullText;
+
+    //    @Field(analyze = Analyze.NO, store = Store.YES)
+    private MetaType type;
 
     @Override
     public String getClusterId() {
@@ -78,7 +89,7 @@ public class KObjectImpl extends Indexable implements KObject {
 
     @Override
     public MetaType getType() {
-        return null;
+        return this.type;
     }
 
     @Override
@@ -86,7 +97,43 @@ public class KObjectImpl extends Indexable implements KObject {
         return this.fullText;
     }
 
+    public void setFullText(boolean fullText) {
+        this.fullText = fullText;
+    }
+
     public void setClusterId(String clusterId) {
         this.clusterId = clusterId;
+    }
+
+    public void setType(MetaType type) {
+        this.type = type;
+    }
+
+    public void setSegmentId(String segmentId) {
+        this.segmentId = segmentId;
+    }
+
+    public Optional<KProperty<?>> getProperty(String name) {
+        return StreamSupport.stream(this.getProperties().spliterator(),
+                                    false)
+                .filter(kProperty -> kProperty.getName().equals(name)).findAny();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("KObject{" +
+                                                     ", key='" + getKey() + '\'' +
+                                                     ", id='" + getId() + '\'' +
+                                                     ", type=" + getType() +
+                                                     ", clusterId='" + getClusterId() + '\'' +
+                                                     ", segmentId='" + getSegmentId() + '\'');
+
+        for (KProperty<?> xproperty : getProperties()) {
+            sb.append(", " + xproperty.getName() + "='" + xproperty.getValue() + '\'');
+        }
+
+        sb.append('}');
+
+        return sb.toString();
     }
 }

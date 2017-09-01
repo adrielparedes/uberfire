@@ -16,7 +16,8 @@
 
 package org.uberfire.ext.metadata.model;
 
-public interface KObject extends KObjectKey,
+public interface KObject extends Indexable,
+                                 KObjectKey,
                                  PropertyBag {
 
     /**

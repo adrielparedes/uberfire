@@ -19,44 +19,33 @@ package org.uberfire.ext.metadata.io;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.Test;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
+import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
+import org.uberfire.ext.metadata.engine.MetaIndexEngine;
 import org.uberfire.ext.metadata.engine.Observer;
 import org.uberfire.io.IOService;
 import org.uberfire.io.attribute.DublinCoreView;
-import org.uberfire.io.impl.IOServiceDotFileImpl;
+import org.uberfire.java.nio.base.version.VersionAttributeView;
 import org.uberfire.java.nio.file.OpenOption;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
 
 import static org.junit.Assert.*;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 public class BatchIndexTest extends BaseIndexTest {
-
-    @Override
-    protected IOService ioService() {
-        if (ioService == null) {
-            config = new LuceneConfigBuilder()
-                    .withInMemoryMetaModelStore()
-                    .useDirectoryBasedIndex()
-                    .useInMemoryDirectory()
-                    .build();
-            ioService = new IOServiceDotFileImpl();
-        }
-        return ioService;
-    }
 
     @Override
     protected String[] getRepositoryNames() {
@@ -192,7 +181,7 @@ public class BatchIndexTest extends BaseIndexTest {
                               "plans!?");
         }
 
-        new BatchIndex(config.getIndexEngine(),
+        new BatchIndex(this.indexEngine,
                        ioService(),
                        new Observer() {
                            @Override
@@ -214,48 +203,33 @@ public class BatchIndexTest extends BaseIndexTest {
                        DublinCoreView.class).run(ioService().get("git://temp-repo-test/"),
                                                  () -> {
                                                      try {
-                                                         final Index index = config.getIndexManager().get(toKCluster(ioService().get("git://temp-repo-test/").getFileSystem()));
-
-                                                         final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
                                                          {
-                                                             final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-                                                             searcher.search(new MatchAllDocsQuery(),
-                                                                             collector);
-
-                                                             final ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                                                             List<KObjectImpl> found = indexProvider.findAll(KObjectImpl.class);
 
                                                              assertEquals(4,
-                                                                          hits.length);
+                                                                          found.size());
                                                          }
 
                                                          {
-                                                             final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-                                                             searcher.search(new TermQuery(new Term("dcore.author",
-                                                                                                    "name")),
-                                                                             collector);
-
-                                                             final ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                                                             List<KObjectImpl> found = indexProvider.findByQuery(KObjectImpl.class,
+                                                                                                                 new TermQuery(new Term("properties.dcore.author",
+                                                                                                                                        "name")));
 
                                                              assertEquals(2,
-                                                                          hits.length);
+                                                                          found.size());
                                                          }
 
                                                          {
-                                                             final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
 
-                                                             searcher.search(new TermQuery(new Term("dcore.author",
-                                                                                                    "second")),
-                                                                             collector);
-
-                                                             final ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                                                             List<KObjectImpl> found = indexProvider.findByQuery(KObjectImpl.class,
+                                                                                                                 new TermQuery(new Term("properties.dcore.author",
+                                                                                                                                        "second")));
 
                                                              assertEquals(1,
-                                                                          hits.length);
+                                                                          found.size());
                                                          }
-
-                                                         ((LuceneIndex) index).nrtRelease(searcher);
                                                      } catch (Exception ex) {
                                                          ex.printStackTrace();
                                                          fail();

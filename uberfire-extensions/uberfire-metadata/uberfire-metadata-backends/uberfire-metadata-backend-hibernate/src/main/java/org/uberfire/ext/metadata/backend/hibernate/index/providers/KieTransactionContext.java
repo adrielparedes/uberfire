@@ -19,19 +19,25 @@ package org.uberfire.ext.metadata.backend.hibernate.index.providers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
+import javax.transaction.UserTransaction;
 
 import org.hibernate.search.backend.TransactionContext;
 
 public class KieTransactionContext implements TransactionContext {
 
-    private boolean progress = true;
+    private AtomicBoolean progress = new AtomicBoolean();
     private List<Synchronization> syncs = new ArrayList<>();
+
+    public KieTransactionContext() {
+        progress.set(true);
+    }
 
     @Override
     public boolean isTransactionInProgress() {
-        return progress;
+        return progress.get();
     }
 
     @Override
@@ -45,7 +51,7 @@ public class KieTransactionContext implements TransactionContext {
     }
 
     public void end() {
-        this.progress = false;
+        this.progress.set(false);
         for (Synchronization sync : syncs) {
             sync.beforeCompletion();
         }

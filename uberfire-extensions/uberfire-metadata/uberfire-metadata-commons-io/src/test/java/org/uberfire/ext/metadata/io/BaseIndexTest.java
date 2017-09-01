@@ -27,15 +27,28 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
+import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
+import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
+import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 import org.uberfire.ext.metadata.model.KObject;
+import org.uberfire.ext.metadata.preferences.LucenePreferences;
 import org.uberfire.io.IOService;
 import org.uberfire.io.attribute.DublinCoreView;
 import org.uberfire.java.nio.base.version.VersionAttributeView;
@@ -52,6 +65,9 @@ public abstract class BaseIndexTest {
     protected LuceneConfig config;
     protected IOService ioService = null;
     private int seed = new Random(10L).nextInt();
+    protected HibernateSearchSearchIndex searchIndex;
+    protected HibernateSearchIndexProvider indexProvider;
+    protected HibernateSearchIndexEngine indexEngine;
 
     @AfterClass
     @BeforeClass
@@ -77,14 +93,27 @@ public abstract class BaseIndexTest {
     protected IOService ioService() {
 
         if (ioService == null) {
-            config = new LuceneConfigBuilder()
-                    .withInMemoryMetaModelStore()
-                    .useDirectoryBasedIndex()
-                    .useInMemoryDirectory()
+
+            HashMap<String, Analyzer> analyzers = new HashMap<>();
+            analyzers.put(LuceneIndex.CUSTOM_FIELD_FILENAME,
+                          new FilenameAnalyzer());
+
+            PerFieldAnalyzerWrapper analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(CharArraySet.EMPTY_SET),
+                                                                           analyzers);
+
+            SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
+                    .addClass(KObjectImpl.class)
+                    .withPreferences(new HibernateSearchPreferences())
                     .build();
 
-            ioService = new IOServiceIndexedImpl(config.getIndexEngine(),
-                                                 Executors.newCachedThreadPool(new DescriptiveThreadFactory() ),
+            indexProvider = new HibernateSearchIndexProvider(searchIntegrator);
+
+            searchIndex = new HibernateSearchSearchIndex(indexProvider,
+                                                         analyzer);
+            this.indexEngine = new HibernateSearchIndexEngine(indexProvider);
+
+            ioService = new IOServiceIndexedImpl(this.indexEngine,
+                                                 Executors.newCachedThreadPool(new DescriptiveThreadFactory()),
                                                  DublinCoreView.class,
                                                  VersionAttributeView.class);
         }
@@ -96,7 +125,11 @@ public abstract class BaseIndexTest {
         IndexersFactory.clear();
         if (!created) {
             final String path = createTempDirectory().getAbsolutePath();
+
             System.setProperty("org.uberfire.nio.git.dir",
+                               path);
+
+            System.setProperty(LucenePreferences.DEFAULT_INDEX_BASE,
                                path);
             System.out.println(".niogit: " + path);
 
@@ -106,7 +139,7 @@ public abstract class BaseIndexTest {
 
                 try {
                     ioService().newFileSystem(newRepo,
-                                              new HashMap<String, Object>());
+                                              new HashMap<>());
 
                     final Path basePath = getDirectoryPath(repositoryName).resolveSibling("root");
                     basePaths.put(repositoryName,

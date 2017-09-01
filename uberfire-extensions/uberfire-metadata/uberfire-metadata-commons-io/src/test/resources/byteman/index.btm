@@ -1,9 +1,10 @@
 RULE reset state
-CLASS org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexEngine
-METHOD <init>(FieldFactory,MetaModelStore,LuceneIndexManager)
+CLASS org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine
+METHOD <init>(IndexProvider)
 AT ENTRY
 IF TRUE
-DO deleteCounter("freshIndex");
+DO traceln("-> Deleting counters");
+   deleteCounter("freshIndex");
    deleteCounter("startBatch");
    deleteCounter("index kobject");
    deleteCounter("index kobject[]");

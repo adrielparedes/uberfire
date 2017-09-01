@@ -81,103 +81,71 @@ public class LuceneSearchIndexTest extends BaseIndexTest {
 
         final Map<String, Object> attributes = new HashMap<String, Object>() {{
             put("filename",
-                "*.txt");
+                "*txt");
         }};
 
         //Attribute Search
         {
-            final int hits = config.getSearchIndex().searchByAttrsHits(attributes);
-            final List<KObject> results = config.getSearchIndex().searchByAttrs(attributes,
-                                                                                new IOSearchService.NoOpFilter());
-            assertEquals(0,
-                         hits);
+            final List<KObject> results = this.searchIndex.searchByAttrs(attributes,
+                                                                         new IOSearchService.NoOpFilter());
             assertEquals(0,
                          results.size());
         }
 
         {
-            final int hits = config.getSearchIndex().searchByAttrsHits(attributes,
-                                                                       cs1);
-            final List<KObject> results = config.getSearchIndex().searchByAttrs(attributes,
-                                                                                new IOSearchService.NoOpFilter(),
-                                                                                cs1);
-            assertEquals(1,
-                         hits);
+            final List<KObject> results = this.searchIndex.searchByAttrs(attributes,
+                                                                         new IOSearchService.NoOpFilter(),
+                                                                         cs1);
             assertEquals(1,
                          results.size());
         }
 
         {
-            final int hits = config.getSearchIndex().searchByAttrsHits(attributes,
-                                                                       cs2);
-            final List<KObject> results = config.getSearchIndex().searchByAttrs(attributes,
-                                                                                new IOSearchService.NoOpFilter(),
-                                                                                cs2);
-            assertEquals(1,
-                         hits);
+            final List<KObject> results = this.searchIndex.searchByAttrs(attributes,
+                                                                         new IOSearchService.NoOpFilter(),
+                                                                         cs2);
             assertEquals(1,
                          results.size());
         }
 
         {
-            final int hits = config.getSearchIndex().searchByAttrsHits(attributes,
-                                                                       cs1,
-                                                                       cs2);
-            final List<KObject> results = config.getSearchIndex().searchByAttrs(attributes,
-                                                                                new IOSearchService.NoOpFilter(),
-                                                                                cs1,
-                                                                                cs2);
-            assertEquals(2,
-                         hits);
+            final List<KObject> results = this.searchIndex.searchByAttrs(attributes,
+                                                                         new IOSearchService.NoOpFilter(),
+                                                                         cs1,
+                                                                         cs2);
             assertEquals(2,
                          results.size());
         }
 
         //Full Text Search
         {
-            final int hits = config.getSearchIndex().fullTextSearchHits("*indexed*");
-            final List<KObject> results = config.getSearchIndex().fullTextSearch("*indexed*",
-                                                                                 new IOSearchService.NoOpFilter());
-            assertEquals(0,
-                         hits);
+            final List<KObject> results = this.searchIndex.fullTextSearch("*indexed*",
+                                                                          new IOSearchService.NoOpFilter());
             assertEquals(0,
                          results.size());
         }
 
         {
-            final int hits = config.getSearchIndex().fullTextSearchHits("*indexed*",
-                                                                        cs1);
-            final List<KObject> results = config.getSearchIndex().fullTextSearch("*indexed*",
-                                                                                 new IOSearchService.NoOpFilter(),
-                                                                                 cs1);
-            assertEquals(1,
-                         hits);
+            final List<KObject> results = this.searchIndex.fullTextSearch("*indexed*",
+                                                                          new IOSearchService.NoOpFilter(),
+                                                                          cs1);
             assertEquals(1,
                          results.size());
         }
 
         {
-            final int hits = config.getSearchIndex().fullTextSearchHits("*indexed*",
-                                                                        cs2);
-            final List<KObject> results = config.getSearchIndex().fullTextSearch("*indexed*",
-                                                                                 new IOSearchService.NoOpFilter(),
-                                                                                 cs2);
-            assertEquals(1,
-                         hits);
+            final List<KObject> results = this.searchIndex.fullTextSearch("*indexed*",
+                                                                          new IOSearchService.NoOpFilter(),
+                                                                          cs2);
             assertEquals(1,
                          results.size());
         }
 
         {
-            final int hits = config.getSearchIndex().fullTextSearchHits("*indexed*",
-                                                                        cs1,
-                                                                        cs2);
-            final List<KObject> results = config.getSearchIndex().fullTextSearch("*indexed*",
-                                                                                 new IOSearchService.NoOpFilter(),
-                                                                                 cs1,
-                                                                                 cs2);
-            assertEquals(2,
-                         hits);
+            final List<KObject> results = this.searchIndex.fullTextSearch("*indexed*",
+                                                                          new IOSearchService.NoOpFilter(),
+                                                                          cs1,
+                                                                          cs2);
             assertEquals(2,
                          results.size());
         }

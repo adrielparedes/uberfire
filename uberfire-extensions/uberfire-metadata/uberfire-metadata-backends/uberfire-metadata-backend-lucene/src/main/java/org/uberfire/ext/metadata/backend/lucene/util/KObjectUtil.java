@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KProperty;
 import org.uberfire.ext.metadata.model.schema.MetaType;
@@ -31,7 +32,7 @@ import org.uberfire.ext.metadata.model.schema.MetaType;
 public final class KObjectUtil {
 
     public static KObject toKObject(final Document document) {
-        return new KObject() {
+        return new KObjectImpl() {
 
             @Override
             public String getId() {

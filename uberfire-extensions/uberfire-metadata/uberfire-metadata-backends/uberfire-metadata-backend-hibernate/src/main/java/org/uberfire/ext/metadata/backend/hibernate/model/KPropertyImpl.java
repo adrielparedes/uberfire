@@ -19,18 +19,30 @@ package org.uberfire.ext.metadata.backend.hibernate.model;
 
 import org.uberfire.ext.metadata.model.KProperty;
 
-public class KPropertyImpl implements KProperty<String> {
+public class KPropertyImpl<T> implements KProperty<T> {
 
+    private boolean sortable;
     private String name;
-    private String value;
+    private T value;
     private boolean searchable;
 
     public KPropertyImpl(String name,
-                         String value,
+                         T value,
                          boolean searchable) {
         this.name = name;
         this.value = value;
         this.searchable = searchable;
+        this.sortable = false;
+    }
+
+    public KPropertyImpl(String name,
+                         T value,
+                         boolean searchable,
+                         boolean sortable) {
+        this.name = name;
+        this.value = value;
+        this.searchable = searchable;
+        this.sortable = sortable;
     }
 
     @Override
@@ -39,12 +51,17 @@ public class KPropertyImpl implements KProperty<String> {
     }
 
     @Override
-    public String getValue() {
+    public T getValue() {
         return this.value;
     }
 
     @Override
     public boolean isSearchable() {
         return this.searchable;
+    }
+
+    @Override
+    public boolean isSortable() {
+        return this.sortable;
     }
 }
