@@ -30,7 +30,7 @@
   <name>Uberfire Metadata Backends</name>
 
   <modules>
-    <module>uberfire-metadata-backend-lucene</module>
     <module>uberfire-metadata-backend-hibernate</module>
+    <module>uberfire-metadata-backend-lucene</module>
   </modules>
 </project>

@@ -15,7 +15,6 @@
  */
 package org.uberfire.ext.metadata.engine;
 
-import org.uberfire.ext.metadata.model.Indexable;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KObjectKey;
 import org.uberfire.java.nio.file.Path;
@@ -35,8 +34,6 @@ public interface Indexer {
      * @return
      */
     KObject toKObject(final Path path);
-
-    Indexable toIndexable(final Path path);
 
     /**
      * Index file represented by Path into an index key object
