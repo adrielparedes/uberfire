@@ -28,15 +28,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.uberfire.ext.metadata.backend.hibernate.configuration.LuceneConfiguration;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.AnalyzerProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
-import org.uberfire.ext.metadata.backend.hibernate.model.ParentIndex;
-import org.uberfire.ext.metadata.backend.hibernate.model.PathIndex;
 import org.uberfire.ext.metadata.preferences.IndexManagerType;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class HibernateSearchLuceneIntegrationTest extends HibernateSearchIntegrationTest {
 
@@ -62,11 +60,11 @@ public class HibernateSearchLuceneIntegrationTest extends HibernateSearchIntegra
 
         SearchIntegrator integrator = new SearchIntegratorBuilder()
                 .withPreferences(preferences)
+                .withAnalyzerProvider(AnalyzerProvider.class)
                 .addClass(KObjectImpl.class)
-                .addClass(PathIndex.class)
-                .addClass(ParentIndex.class)
                 .build();
-        this.provider = new HibernateSearchIndexProvider(integrator);
+        this.provider = new HibernateSearchIndexProvider(integrator,
+                                                         this.queryAdapter);
     }
 
     @After

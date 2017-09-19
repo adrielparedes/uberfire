@@ -21,33 +21,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.TotalHitCountCollector;
-import org.apache.lucene.search.WildcardQuery;
 import org.uberfire.ext.metadata.backend.hibernate.index.QueryBuilder;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexManager;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.search.ClusterSegment;
-import org.uberfire.ext.metadata.search.DateRange;
 import org.uberfire.ext.metadata.search.IOSearchService;
 import org.uberfire.ext.metadata.search.SearchIndex;
 
 import static java.util.Collections.emptyList;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
-import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 import static org.apache.lucene.search.NumericRangeQuery.newLongRange;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
-import static org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil.toKObject;
-import static org.uberfire.ext.metadata.engine.MetaIndexEngine.FULL_TEXT_FIELD;
+import static org.uberfire.ext.metadata.backend.hibernate.util.KObjectUtil.toKObject;
 
 /**
  *

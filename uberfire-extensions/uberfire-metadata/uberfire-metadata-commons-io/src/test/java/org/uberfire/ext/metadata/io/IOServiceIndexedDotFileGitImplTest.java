@@ -21,23 +21,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
-import org.uberfire.ext.metadata.model.schema.MetaObject;
 import org.uberfire.java.nio.file.OpenOption;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
 
 import static org.junit.Assert.*;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 @RunWith(org.jboss.byteman.contrib.bmunit.BMUnitRunner.class)
 @BMScript(value = "byteman/index.btm")
@@ -65,23 +58,8 @@ public class IOServiceIndexedDotFileGitImplTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        //TODO: Do I need MetaModel?
-//        final MetaObject mo = config.getMetaModelStore().getMetaObject(Path.class.getName());
-
-//        assertNotNull(mo);
-//        assertNotNull(mo.getProperty("name"));
-//        assertEquals(1,
-//                     mo.getProperty("name").getTypes().size());
-//        assertTrue(mo.getProperty("name").getTypes().contains(String.class));
-
-//        final Index index = config.getIndexManager().get(toKCluster(path.getFileSystem()));
-//
-//        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-//
-//        final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
-
         List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
-                                                                 new TermQuery(new Term("properties.name",
+                                                                 new TermQuery(new Term("name",
                                                                                         "value")));
 
         assertEquals(1,

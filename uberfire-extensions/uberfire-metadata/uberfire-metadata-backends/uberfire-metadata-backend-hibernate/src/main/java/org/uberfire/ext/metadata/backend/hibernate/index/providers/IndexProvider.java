@@ -30,6 +30,8 @@ import org.uberfire.ext.metadata.model.KCluster;
 public interface IndexProvider {
 
     String CUSTOM_FIELD_FILENAME = "filename";
+    String CUSTOM_FIELD_FILENAME_SORTED = "filenamesorted";
+    String FULL_TEXT = "fullText";
 
     <T extends Indexable> T index(T indexable);
 

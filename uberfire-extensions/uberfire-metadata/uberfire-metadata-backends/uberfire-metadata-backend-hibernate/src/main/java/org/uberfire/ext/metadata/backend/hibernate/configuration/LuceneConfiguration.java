@@ -38,7 +38,6 @@ public class LuceneConfiguration extends MetadataSearchConfigurationBase {
                     lucenePreferences.getDefaultDirectoryProvider());
         addProperty(HIBERNATE_SEARCH_DEFAULT_INDEX_BASE,
                     lucenePreferences.getDefaultIndexBase());
-
         if (logger.isDebugEnabled()) {
             this.getProperties().forEach((key, value) -> logger.debug("{}={}",
                                                                       key,

@@ -31,15 +31,15 @@ import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
 import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
 import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 import org.uberfire.ext.metadata.engine.MetaIndexEngine;
 import org.uberfire.ext.metadata.model.KCluster;
 import org.uberfire.io.IOService;
@@ -68,7 +68,7 @@ public class BatchIndexConcurrencyTest extends BaseIndexTest {
         if (ioService == null) {
 
             HashMap<String, Analyzer> analyzers = new HashMap<>();
-            analyzers.put(LuceneIndex.CUSTOM_FIELD_FILENAME,
+            analyzers.put(IndexProvider.CUSTOM_FIELD_FILENAME,
                           new FilenameAnalyzer());
 
             PerFieldAnalyzerWrapper analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(CharArraySet.EMPTY_SET),
@@ -79,7 +79,12 @@ public class BatchIndexConcurrencyTest extends BaseIndexTest {
                     .withPreferences(new HibernateSearchPreferences())
                     .build();
 
-            indexProvider = new HibernateSearchIndexProvider(searchIntegrator);
+            queryAdapter = new QueryAdapter(KObjectImpl.class,
+                                            "properties");
+
+            indexProvider = new HibernateSearchIndexProvider(searchIntegrator,
+                                                             new QueryAdapter(KObjectImpl.class,
+                                                                              "properties"));
 
             searchIndex = new HibernateSearchSearchIndex(indexProvider,
                                                          analyzer);

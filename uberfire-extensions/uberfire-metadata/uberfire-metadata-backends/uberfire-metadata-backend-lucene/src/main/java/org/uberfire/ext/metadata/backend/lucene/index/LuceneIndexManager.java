@@ -28,7 +28,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SearcherFactory;
-import org.uberfire.ext.metadata.backend.lucene.model.KClusterImpl;
+import org.uberfire.ext.metadata.backend.hibernate.model.KClusterImpl;
 import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.ext.metadata.engine.IndexManager;
 import org.uberfire.ext.metadata.model.KCluster;

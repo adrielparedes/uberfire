@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
-import javax.transaction.UserTransaction;
 
 import org.hibernate.search.backend.TransactionContext;
 

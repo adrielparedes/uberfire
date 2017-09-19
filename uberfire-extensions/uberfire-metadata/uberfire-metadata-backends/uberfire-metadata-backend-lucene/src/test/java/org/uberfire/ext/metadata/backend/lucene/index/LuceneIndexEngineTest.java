@@ -20,7 +20,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.junit.Test;
 import org.uberfire.commons.lifecycle.PriorityDisposableRegistry;
 import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 import org.uberfire.ext.metadata.engine.MetaModelStore;
 
 import static org.junit.Assert.*;

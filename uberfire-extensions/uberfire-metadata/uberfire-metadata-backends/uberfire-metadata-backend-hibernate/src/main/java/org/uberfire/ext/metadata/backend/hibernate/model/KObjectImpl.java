@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.ClassBridge;
@@ -30,6 +32,7 @@ import org.hibernate.search.annotations.FullTextFilterDef;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.filter.ShardSensitiveOnlyFilter;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
 import org.uberfire.ext.metadata.engine.MetaIndexEngine;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KProperty;
@@ -38,7 +41,7 @@ import org.uberfire.ext.metadata.model.schema.MetaType;
 @Indexed
 @FullTextFilterDef(name = "cluster", impl = ShardSensitiveOnlyFilter.class)
 @ClassBridge(name = MetaIndexEngine.FULL_TEXT_FIELD, analyze = Analyze.YES, store = Store.YES, impl = FullTextClassBridge.class)
-@Analyzer(impl = WhitespaceAnalyzer.class)
+@Analyzer(impl = StandardAnalyzer.class)
 public class KObjectImpl extends Indexable implements KObject {
 
     @Field(name = "cluster.id", analyze = Analyze.NO, store = Store.YES)

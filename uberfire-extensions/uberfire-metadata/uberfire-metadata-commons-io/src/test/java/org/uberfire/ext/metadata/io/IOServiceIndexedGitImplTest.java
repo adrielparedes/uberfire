@@ -22,24 +22,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.java.nio.file.OpenOption;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
 
 import static org.junit.Assert.*;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 @RunWith(org.jboss.byteman.contrib.bmunit.BMUnitRunner.class)
 @BMScript(value = "byteman/index.btm")
@@ -112,37 +105,10 @@ public class IOServiceIndexedGitImplTest extends BaseIndexTest {
 
         waitForCountDown(5000);
 
-        //TODO: Is MetaModel useful with this change?
-
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()));
-//
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int"));
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int.hello"));
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("custom"));
-//
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int"));
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int.hello"));
-//        assertNotNull(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("custom"));
-//
-//        assertEquals(1,
-//                     config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int").getTypes().size());
-//        assertEquals(1,
-//                     config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int.hello").getTypes().size());
-//        assertEquals(1,
-//                     config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("custom").getTypes().size());
-//
-//        assertTrue(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int").getTypes().contains(Integer.class));
-//        assertTrue(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("int.hello").getTypes().contains(String.class));
-//        assertTrue(config.getMetaModelStore().getMetaObject(Path.class.getName()).getProperty("custom").getTypes().contains(Date.class));
-
-//        final Index index = config.getIndexManager().get(toKCluster(path2.getFileSystem()));
-
-//        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-
         {
 
             List<KObjectImpl> hits = this.indexProvider.findByQuery(KObjectImpl.class,
-                                                                    new TermQuery(new Term("properties.int.hello",
+                                                                    new TermQuery(new Term("int.hello",
                                                                                            "world")));
 
             assertEquals(1,
@@ -152,7 +118,7 @@ public class IOServiceIndexedGitImplTest extends BaseIndexTest {
         {
 
             List<KObjectImpl> hits = this.indexProvider.findByQuery(KObjectImpl.class,
-                                                                    new TermQuery(new Term("properties.int.hello",
+                                                                    new TermQuery(new Term("int.hello",
                                                                                            "jhere")));
 
             assertEquals(2,

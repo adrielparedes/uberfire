@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.collect.Iterators;
 import org.apache.lucene.search.Query;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
@@ -29,10 +30,12 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.model.KPropertyImpl;
 import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
+import org.uberfire.ext.metadata.model.KProperty;
 
 import static org.junit.Assert.*;
 
@@ -43,12 +46,15 @@ public abstract class HibernateSearchIntegrationTest {
     protected HibernateSearchIndexProvider provider;
     protected ObjectMapper mapper;
     protected HibernateSearchPreferences preferences;
+    protected QueryAdapter queryAdapter;
 
     public void setUp() {
 
         this.mapper = new ObjectMapper();
         mapper.enable(SerializationConfig.Feature.INDENT_OUTPUT);
         preferences = new HibernateSearchPreferences();
+        queryAdapter = new QueryAdapter(KObjectImpl.class,
+                                        "properties");
     }
 
     @Test
@@ -59,6 +65,8 @@ public abstract class HibernateSearchIntegrationTest {
         for (int i = 0; i < names.length; i++) {
             KObjectImpl kObject = new KObjectImpl();
             kObject.setKey(names[i]);
+            kObject.setId(String.valueOf(i));
+            kObject.setClusterId("musician");
             this.provider.index(kObject);
         }
 
@@ -75,6 +83,8 @@ public abstract class HibernateSearchIntegrationTest {
 
         KObjectImpl pathIndex = new KObjectImpl();
         pathIndex.setKey("original");
+        pathIndex.setId("1");
+        pathIndex.setClusterId("path");
 
         this.provider.index(pathIndex);
 
@@ -106,6 +116,8 @@ public abstract class HibernateSearchIntegrationTest {
 
         KObjectImpl kObject = new KObjectImpl();
         kObject.setProperties(Arrays.asList(kProperty));
+        kObject.setClusterId("java");
+        kObject.setId("1");
 
         KObjectImpl indexed = this.provider.index(kObject);
 
@@ -118,13 +130,14 @@ public abstract class HibernateSearchIntegrationTest {
     }
 
     @Test
-    public void testSearchByQuery() throws InterruptedException {
+    public void testSearchByExactQuery() throws InterruptedException {
 
         KPropertyImpl kProperty = new KPropertyImpl("type",
                                                     "java",
                                                     true);
 
         KObjectImpl kObject = new KObjectImpl();
+        kObject.setId("1");
         kObject.setClusterId("java");
         kObject.setProperties(Arrays.asList(kProperty));
 
@@ -133,6 +146,7 @@ public abstract class HibernateSearchIntegrationTest {
                                                      true);
 
         KObjectImpl kObject2 = new KObjectImpl();
+        kObject2.setId("2");
         kObject2.setClusterId("java");
         kObject2.setProperties(Arrays.asList(kProperty2));
 
@@ -144,7 +158,7 @@ public abstract class HibernateSearchIntegrationTest {
         QueryBuilder queryBuilder = this.provider.getQueryBuilder(KObjectImpl.class);
 
         Query query = queryBuilder.keyword()
-                .onField("properties.type")
+                .onField("type")
                 .ignoreFieldBridge()
                 .ignoreAnalyzer()
                 .matching("java")
@@ -164,7 +178,8 @@ public abstract class HibernateSearchIntegrationTest {
 
         KObjectImpl pathIndex = new KObjectImpl();
         pathIndex.setKey("key");
-
+        pathIndex.setId("1");
+        pathIndex.setClusterId("path");
         KObjectImpl indexed = this.provider.index(pathIndex);
 
         Thread.sleep(1000);
@@ -193,6 +208,7 @@ public abstract class HibernateSearchIntegrationTest {
         KObjectImpl kObject = new KObjectImpl();
         kObject.setKey("Key!!!");
         kObject.setClusterId("java");
+        kObject.setId("1");
         kObject.setProperties(Arrays.asList(fieldName,
                                             methodName));
 
@@ -206,5 +222,71 @@ public abstract class HibernateSearchIntegrationTest {
         logger.info(mapper.writeValueAsString(found.get()));
 
         assertTrue(found.isPresent());
+    }
+
+    @Test
+    public void testRetrieveProperties() throws InterruptedException, IOException {
+
+        KPropertyImpl fieldName = new KPropertyImpl("fieldName",
+                                                    "FIELD",
+                                                    false);
+        KPropertyImpl methodName = new KPropertyImpl("methodName",
+                                                     "METHOD",
+                                                     false);
+
+        KObjectImpl kObject = new KObjectImpl();
+        kObject.setKey("key");
+        kObject.setClusterId("java");
+        kObject.setId("1");
+        kObject.setProperties(Arrays.asList(fieldName,
+                                            methodName));
+
+        KObjectImpl indexed = this.provider.index(kObject);
+
+        Thread.sleep(1000);
+
+        Optional<KObjectImpl> found = this.provider.findById(KObjectImpl.class,
+                                                             indexed.getId());
+
+        assertTrue(found.isPresent());
+        assertEquals(2,
+                     Iterators.size(found.get().getProperties().iterator()));
+        assertEquals("fieldName",
+                     found.get().getProperties().iterator().next().getName());
+    }
+
+    @Test
+    public void testSearchByQueryWithLowerCase() throws InterruptedException, IOException {
+
+        KPropertyImpl methodName = new KPropertyImpl("methodName",
+                                                     "camelCase",
+                                                     false);
+
+        KObjectImpl kObject = new KObjectImpl();
+        kObject.setKey("camelCaseKey");
+        kObject.setClusterId("java");
+        kObject.setId("1");
+        kObject.setProperties(Arrays.asList(methodName));
+
+        KObjectImpl indexed = this.provider.index(kObject);
+
+        Thread.sleep(1000);
+//
+//        Query query = this.provider.getQueryBuilder(KObjectImpl.class)
+//                .keyword()
+//                .onField("key")
+//                .matching("camelcasekey").createQuery();
+
+        Query query = this.provider.getQueryBuilder(KObjectImpl.class)
+                .keyword()
+                .onField("methodName").ignoreFieldBridge()
+                .matching("camelcase").createQuery();
+
+        List<KObjectImpl> found = this.provider.findByQuery(KObjectImpl.class,
+                                                            query);
+
+        logger.info(mapper.writeValueAsString(found));
+
+        assertFalse(found.isEmpty());
     }
 }

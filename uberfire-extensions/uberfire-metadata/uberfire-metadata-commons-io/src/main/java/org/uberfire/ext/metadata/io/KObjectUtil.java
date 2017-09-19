@@ -23,10 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
+import org.uberfire.ext.metadata.backend.hibernate.model.KClusterImpl;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.model.KPropertyImpl;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
-import org.uberfire.ext.metadata.backend.lucene.model.KClusterImpl;
 import org.uberfire.ext.metadata.model.KCluster;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KObjectKey;
@@ -36,7 +36,6 @@ import org.uberfire.java.nio.base.FileSystemId;
 import org.uberfire.java.nio.base.SegmentedPath;
 import org.uberfire.java.nio.file.FileSystem;
 import org.uberfire.java.nio.file.Path;
-import org.uberfire.java.nio.file.Paths;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
 
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
@@ -49,12 +48,7 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
 public final class KObjectUtil {
 
     private static final MessageDigest DIGEST;
-    private static final MetaType META_TYPE = new MetaType() {
-        @Override
-        public String getName() {
-            return Path.class.getName();
-        }
-    };
+    private static final MetaType META_TYPE = () -> Path.class.getName();
 
     static {
         try {
@@ -113,8 +107,8 @@ public final class KObjectUtil {
 
         Arrays.stream(attrs).forEach(attr -> {
             properties.add(new KPropertyImpl<Object>(attr.name(),
-                                               attr.value(),
-                                               true));
+                                                     attr.value(),
+                                                     true));
         });
 
         String fileName = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString()).orElse("/");

@@ -24,7 +24,7 @@ import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 import org.uberfire.ext.metadata.backend.lucene.fields.SimpleFieldFactory;
 import org.uberfire.ext.metadata.CustomAnalyzerWrapperFactory;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;

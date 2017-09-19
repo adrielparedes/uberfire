@@ -30,6 +30,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.util.BytesRef;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 import org.uberfire.ext.metadata.model.KProperty;
 import org.uberfire.java.nio.base.version.VersionHistory;
 import org.uberfire.java.nio.file.attribute.FileTime;

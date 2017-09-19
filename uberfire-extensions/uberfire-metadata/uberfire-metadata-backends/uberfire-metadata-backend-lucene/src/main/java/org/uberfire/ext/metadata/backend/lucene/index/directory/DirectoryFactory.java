@@ -28,7 +28,7 @@ import org.apache.lucene.codecs.lucene53.Lucene53Codec;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexFactory;
-import org.uberfire.ext.metadata.backend.lucene.model.KClusterImpl;
+import org.uberfire.ext.metadata.backend.hibernate.model.KClusterImpl;
 import org.uberfire.ext.metadata.model.KCluster;
 
 import static org.uberfire.commons.validation.PortablePreconditions.checkCondition;
@@ -77,7 +77,7 @@ public class DirectoryFactory implements LuceneIndexFactory {
                 if (field.equals("id")) {
                     return PostingsFormat.forName("Memory");
                 } else {
-                    return PostingsFormat.forName("Lucene50");
+                    return PostingsFormat.forName("Lucene54");
                 }
             }
         };

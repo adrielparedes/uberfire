@@ -49,7 +49,7 @@ public class QueryBuilder {
                             final ClusterSegment... clusterSegments) {
         final BooleanQuery query = new BooleanQuery();
         for (final Map.Entry<String, ?> entry : attrs.entrySet()) {
-            String key = "properties." + entry.getKey();
+            String key = entry.getKey();
             if (entry.getValue() instanceof DateRange) {
                 final Long from = ((DateRange) entry.getValue()).after().getTime();
                 final Long to = ((DateRange) entry.getValue()).before().getTime();

@@ -21,7 +21,9 @@ import org.hibernate.search.spi.SearchIntegrator;
 import org.uberfire.ext.metadata.MetadataConfig;
 import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
 import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 import org.uberfire.ext.metadata.engine.IndexManager;
 import org.uberfire.ext.metadata.engine.MetaIndexEngine;
 import org.uberfire.ext.metadata.engine.MetaModelStore;
@@ -34,12 +36,18 @@ public class HibernateSearchConfig implements MetadataConfig {
     private final HibernateSearchIndexProvider indexProvider;
 
     public HibernateSearchConfig(SearchIntegrator searchIntegrator,
+                                 QueryAdapter queryAdapter,
                                  Analyzer analyzer) {
 
-        this.indexProvider = new HibernateSearchIndexProvider(searchIntegrator);
+        this.indexProvider = new HibernateSearchIndexProvider(searchIntegrator,
+                                                              queryAdapter);
         this.searchIndex = new HibernateSearchSearchIndex(this.indexProvider,
                                                           analyzer);
         this.indexEngine = new HibernateSearchIndexEngine(this.indexProvider);
+    }
+
+    public IndexProvider getIndexProvider() {
+        return this.indexProvider;
     }
 
     @Override

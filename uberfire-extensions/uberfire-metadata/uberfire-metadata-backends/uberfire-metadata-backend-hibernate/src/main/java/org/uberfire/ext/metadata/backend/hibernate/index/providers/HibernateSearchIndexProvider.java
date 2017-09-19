@@ -18,7 +18,6 @@
 package org.uberfire.ext.metadata.backend.hibernate.index.providers;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,12 +34,14 @@ import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.model.Indexable;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.model.KCluster;
 
 public class HibernateSearchIndexProvider implements IndexProvider {
 
+    private final QueryAdapter queryAdapter;
     private SearchIntegrator searchIntegrator;
     private Logger logger = LoggerFactory.getLogger(HibernateSearchIndexProvider.class);
 
@@ -48,9 +49,13 @@ public class HibernateSearchIndexProvider implements IndexProvider {
 
     private HibernateSearchAnnotationProcessor annotationProcessor;
 
-    public HibernateSearchIndexProvider(SearchIntegrator searchIntegrator) {
+    public HibernateSearchIndexProvider(SearchIntegrator searchIntegrator,
+                                        QueryAdapter queryAdapter) {
         this.searchIntegrator = searchIntegrator;
         this.annotationProcessor = new HibernateSearchAnnotationProcessor();
+        this.queryAdapter = queryAdapter;
+
+        searchIntegrator.getIndexManager("").
     }
 
     @Override
@@ -113,8 +118,10 @@ public class HibernateSearchIndexProvider implements IndexProvider {
 
     @Override
     public void commit(String clusterId) {
-        this.batchMode.get(clusterId).end();
-        this.batchMode.remove(clusterId);
+        Optional.ofNullable(this.batchMode.get(clusterId)).ifPresent(kieTransactionContext -> {
+            kieTransactionContext.end();
+            batchMode.remove(clusterId);
+        });
     }
 
     @Override
@@ -165,7 +172,7 @@ public class HibernateSearchIndexProvider implements IndexProvider {
     @Override
     public <T extends Indexable> List<T> findByQuery(Class<T> clazz,
                                                      Query query) {
-        HSQuery hsQuery = this.searchIntegrator.createHSQuery(query,
+        HSQuery hsQuery = this.searchIntegrator.createHSQuery(this.queryAdapter.fromLuceneQuery(query),
                                                               clazz);
 
         return this.findByQuery(clazz,
@@ -176,10 +183,11 @@ public class HibernateSearchIndexProvider implements IndexProvider {
     public <T extends Indexable> List<T> findByQuery(Class<T> clazz,
                                                      Query query,
                                                      Sort sort) {
-        HSQuery hsQuery = this.searchIntegrator.createHSQuery(query,
+        Query adaptedQuery = this.queryAdapter.fromLuceneQuery(query);
+        HSQuery hsQuery = this.searchIntegrator.createHSQuery(adaptedQuery,
                                                               clazz);
 
-        hsQuery.sort(sort);
+        hsQuery.sort(this.queryAdapter.fromSort(sort));
         return this.findByQuery(clazz,
                                 hsQuery);
     }
@@ -190,7 +198,7 @@ public class HibernateSearchIndexProvider implements IndexProvider {
         QueryBuilder qb = this.searchIntegrator.buildQueryBuilder()
                 .forEntity(clazz)
                 .get();
-        Query query = qb.keyword().onField("id").matching(id).createQuery();
+        Query query = qb.keyword().onField("id").matching(id.trim()).createQuery();
 
         return this.findByQuery(clazz,
                                 query)

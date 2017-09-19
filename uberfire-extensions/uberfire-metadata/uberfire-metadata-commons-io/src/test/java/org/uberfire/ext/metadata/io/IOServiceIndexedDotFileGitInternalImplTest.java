@@ -21,24 +21,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
-import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.java.nio.file.OpenOption;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
 
 import static org.junit.Assert.*;
-import static org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil.toKObject;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 @RunWith(org.jboss.byteman.contrib.bmunit.BMUnitRunner.class)
 @BMScript(value = "byteman/index.btm")
@@ -67,7 +59,7 @@ public class IOServiceIndexedDotFileGitInternalImplTest extends BaseIndexTest {
         waitForCountDown(5000);
 
         List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
-                                                                 new TermQuery(new Term("properties.name",
+                                                                 new TermQuery(new Term("name",
                                                                                         "value")));
 
         assertEquals(1,

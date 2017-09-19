@@ -19,26 +19,26 @@ package org.uberfire.ext.metadata.io;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.Test;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
-import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
-import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
-import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfigBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
-import org.uberfire.ext.metadata.engine.MetaIndexEngine;
 import org.uberfire.ext.metadata.engine.Observer;
 import org.uberfire.io.IOService;
 import org.uberfire.io.attribute.DublinCoreView;
-import org.uberfire.java.nio.base.version.VersionAttributeView;
+import org.uberfire.io.impl.IOServiceDotFileImpl;
 import org.uberfire.java.nio.file.OpenOption;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.java.nio.file.attribute.FileAttribute;
@@ -52,13 +52,29 @@ public class BatchIndexTest extends BaseIndexTest {
         return new String[]{"temp-repo-test"};
     }
 
+    @Override
+    protected IOService ioService() {
+        if (ioService == null) {
+            SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
+                    .withPreferences(new HibernateSearchPreferences())
+                    .addClass(KObjectImpl.class)
+                    .build();
+
+            this.config = new HibernateSearchConfigBuilder()
+                    .withSearchIntegrator(searchIntegrator)
+                    .build();
+            ioService = new IOServiceDotFileImpl();
+        }
+        return ioService;
+    }
+
     @Test
     public void testIndex() throws IOException, InterruptedException {
         {
             final Path file = ioService().get("git://temp-repo-test/path/to/file.txt");
             ioService().write(file,
                               "some content here",
-                              Collections.<OpenOption>emptySet(),
+                              Collections.emptySet(),
                               new FileAttribute<Object>() {
                                   @Override
                                   public String name() {
@@ -181,7 +197,7 @@ public class BatchIndexTest extends BaseIndexTest {
                               "plans!?");
         }
 
-        new BatchIndex(this.indexEngine,
+        new BatchIndex(config.getIndexEngine(),
                        ioService(),
                        new Observer() {
                            @Override
@@ -205,7 +221,7 @@ public class BatchIndexTest extends BaseIndexTest {
                                                      try {
                                                          {
 
-                                                             List<KObjectImpl> found = indexProvider.findAll(KObjectImpl.class);
+                                                             List<KObjectImpl> found = ((HibernateSearchConfig) config).getIndexProvider().findAll(KObjectImpl.class);
 
                                                              assertEquals(4,
                                                                           found.size());
@@ -213,9 +229,9 @@ public class BatchIndexTest extends BaseIndexTest {
 
                                                          {
 
-                                                             List<KObjectImpl> found = indexProvider.findByQuery(KObjectImpl.class,
-                                                                                                                 new TermQuery(new Term("properties.dcore.author",
-                                                                                                                                        "name")));
+                                                             List<KObjectImpl> found = ((HibernateSearchConfig) config).getIndexProvider().findByQuery(KObjectImpl.class,
+                                                                                                                                                       new TermQuery(new Term("dcore.author",
+                                                                                                                                                                              "Name")));
 
                                                              assertEquals(2,
                                                                           found.size());
@@ -223,9 +239,9 @@ public class BatchIndexTest extends BaseIndexTest {
 
                                                          {
 
-                                                             List<KObjectImpl> found = indexProvider.findByQuery(KObjectImpl.class,
-                                                                                                                 new TermQuery(new Term("properties.dcore.author",
-                                                                                                                                        "second")));
+                                                             List<KObjectImpl> found = ((HibernateSearchConfig) config).getIndexProvider().findByQuery(KObjectImpl.class,
+                                                                                                                                                       new TermQuery(new Term("dcore.author",
+                                                                                                                                                                              "Second")));
 
                                                              assertEquals(1,
                                                                           found.size());

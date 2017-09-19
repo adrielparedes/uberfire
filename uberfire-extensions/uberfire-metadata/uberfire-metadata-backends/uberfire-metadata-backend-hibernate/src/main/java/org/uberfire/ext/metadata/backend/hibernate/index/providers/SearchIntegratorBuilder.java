@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.hibernate.search.cfg.spi.SearchConfiguration;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.AnalyzerProvider;
 import org.uberfire.ext.metadata.backend.hibernate.configuration.ConfigurationManager;
 import org.uberfire.ext.metadata.backend.hibernate.configuration.MetadataSearchConfigurationBase;
 import org.uberfire.ext.metadata.backend.hibernate.model.Indexable;
@@ -29,9 +30,11 @@ import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPr
 
 public class SearchIntegratorBuilder {
 
+    public static final String HIBERNATE_SEARCH_LUCENE_ANALYSIS_DEFINITION_PROVIDER = "hibernate.search.lucene.analysis_definition_provider";
     private SearchConfiguration searchConfiguration;
     private HibernateSearchPreferences preferences;
     private List<Class<? extends Indexable>> classes;
+    private Class<AnalyzerProvider> analyzerProviderClass;
 
     public SearchIntegratorBuilder() {
 
@@ -51,9 +54,18 @@ public class SearchIntegratorBuilder {
 
     public SearchIntegrator build() {
         MetadataSearchConfigurationBase searchConfiguration = new ConfigurationManager(preferences).getSearchConfiguration();
+        if (this.analyzerProviderClass != null) {
+            searchConfiguration.addProperty(HIBERNATE_SEARCH_LUCENE_ANALYSIS_DEFINITION_PROVIDER,
+                                            analyzerProviderClass.getCanonicalName());
+        }
         searchConfiguration.addClasses(classes);
         return new org.hibernate.search.spi.SearchIntegratorBuilder()
                 .configuration(searchConfiguration)
                 .buildSearchIntegrator();
+    }
+
+    public SearchIntegratorBuilder withAnalyzerProvider(Class<AnalyzerProvider> analyzerProviderClass) {
+        this.analyzerProviderClass = analyzerProviderClass;
+        return this;
     }
 }

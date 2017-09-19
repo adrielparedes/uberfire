@@ -18,7 +18,7 @@ package org.uberfire.ext.metadata.backend.lucene;
 
 import org.junit.Test;
 import org.uberfire.commons.lifecycle.PriorityDisposableRegistry;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexEngine;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexManager;
 import org.uberfire.ext.metadata.engine.MetaModelStore;

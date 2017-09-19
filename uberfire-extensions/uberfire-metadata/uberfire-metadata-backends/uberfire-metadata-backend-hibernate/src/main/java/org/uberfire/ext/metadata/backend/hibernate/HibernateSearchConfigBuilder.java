@@ -16,6 +16,7 @@
 
 package org.uberfire.ext.metadata.backend.hibernate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +28,10 @@ import org.hibernate.search.spi.SearchIntegrator;
 import org.uberfire.ext.metadata.CustomAnalyzerWrapperFactory;
 import org.uberfire.ext.metadata.MetadataConfig;
 import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.metamodel.NullMetaModelStore;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.engine.MetaModelStore;
 
 public class HibernateSearchConfigBuilder {
@@ -38,13 +41,18 @@ public class HibernateSearchConfigBuilder {
     private CustomAnalyzerWrapperFactory customAnalyzerWrapperFactory;
     private Map<String, Analyzer> analyzers;
     private MetaModelStore metaModelStore;
+    private QueryAdapter queryAdapter;
 
     public HibernateSearchConfigBuilder withSearchIntegrator(SearchIntegrator searchIntegrator) {
         this.searchIntegrator = searchIntegrator;
+        queryAdapter = new QueryAdapter(KObjectImpl.class,
+                                        "properties",
+                                        Arrays.asList(IndexProvider.FULL_TEXT));
         return this;
     }
 
     public MetadataConfig build() {
+
         if (metaModelStore == null) {
             this.metaModelStore = new NullMetaModelStore();
         }
@@ -56,6 +64,7 @@ public class HibernateSearchConfigBuilder {
         }
 
         return new HibernateSearchConfig(this.searchIntegrator,
+                                         queryAdapter,
                                          this.analyzer);
     }
 
@@ -79,11 +88,11 @@ public class HibernateSearchConfigBuilder {
         if (this.customAnalyzerWrapperFactory == null) {
             this.analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(CharArraySet.EMPTY_SET),
                                                         new HashMap<String, Analyzer>() {{
-                                                            putAll(analyzers);
+                                                            putAll(queryAdapter.fromAnalyzers(analyzers));
                                                         }});
         } else {
             this.analyzer = this.customAnalyzerWrapperFactory.getAnalyzerWrapper(new StandardAnalyzer(CharArraySet.EMPTY_SET),
-                                                                                 analyzers);
+                                                                                 queryAdapter.fromAnalyzers(analyzers));
         }
     }
 }

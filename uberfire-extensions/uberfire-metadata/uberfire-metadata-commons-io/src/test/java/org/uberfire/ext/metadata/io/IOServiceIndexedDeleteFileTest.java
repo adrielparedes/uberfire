@@ -65,7 +65,7 @@ public class IOServiceIndexedDeleteFileTest extends BaseIndexTest {
 
         //Check the file has been indexed
         List<KObjectImpl> found = this.indexProvider.findByQuery(KObjectImpl.class,
-                                                                 new TermQuery(new Term("properties.delete",
+                                                                 new TermQuery(new Term("delete",
                                                                                         "me")));
 
         assertEquals(1,
@@ -79,7 +79,7 @@ public class IOServiceIndexedDeleteFileTest extends BaseIndexTest {
         waitForCountDown(5000);
 
         found = this.indexProvider.findByQuery(KObjectImpl.class,
-                                               new TermQuery(new Term("properties.delete",
+                                               new TermQuery(new Term("delete",
                                                                       "me")));
 
         assertEquals(0,

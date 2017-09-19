@@ -17,21 +17,16 @@
 
 package org.uberfire.ext.metadata.backend.hibernate;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import javax.ws.rs.client.WebTarget;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -41,15 +36,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
-import org.uberfire.ext.metadata.backend.hibernate.model.ParentIndex;
 import org.uberfire.ext.metadata.backend.hibernate.model.PathIndex;
 import org.uberfire.ext.metadata.preferences.IndexManagerType;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(ArquillianConditionalRunner.class)
 public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearchIntegrationTest {
@@ -58,6 +52,7 @@ public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearch
 
     @ArquillianResource
     private CubeController cubeController;
+    private QueryAdapter properties;
 
     @Before
     public void setUp() {
@@ -67,15 +62,22 @@ public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearch
         cubeController.create(CONTAINER);
         cubeController.start(CONTAINER);
 
+        try {
+            this.waitUntilReady(100,
+                                1000l);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         this.preferences.setIndexManager(IndexManagerType.ELASTICSEARCH.toString());
 
         SearchIntegrator integrator = new SearchIntegratorBuilder()
                 .withPreferences(preferences)
                 .addClass(KObjectImpl.class)
                 .addClass(PathIndex.class)
-                .addClass(ParentIndex.class)
                 .build();
-        this.provider = new HibernateSearchIndexProvider(integrator);
+        this.provider = new HibernateSearchIndexProvider(integrator,
+                                                         queryAdapter);
     }
 
     @After
@@ -88,21 +90,16 @@ public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearch
     public void testElasticSearchShard() throws IOException {
         KObjectImpl kObject1 = new KObjectImpl();
         kObject1.setClusterId("java");
+        kObject1.setId("1");
 
         KObjectImpl kObject2 = new KObjectImpl();
         kObject2.setClusterId("mvel");
+        kObject2.setId("2");
 
         this.provider.index(kObject1);
         this.provider.index(kObject2);
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials
-                = new UsernamePasswordCredentials("elastic",
-                                                  "changeme");
-        provider.setCredentials(AuthScope.ANY,
-                                credentials);
-
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpClient client = createElasticClient();
         HttpHead requestJava = new HttpHead("http://localhost:9200/" + KObjectImpl.class.getCanonicalName().toLowerCase() + ".java");
         HttpHead requestMvel = new HttpHead("http://localhost:9200/" + KObjectImpl.class.getCanonicalName().toLowerCase() + ".mvel");
         HttpResponse responseJava = client.execute(requestJava);
@@ -112,5 +109,41 @@ public class HibernateSearchElasticSearchIntegrationTest extends HibernateSearch
                      responseJava.getStatusLine().getStatusCode());
         assertEquals(200,
                      responseMvel.getStatusLine().getStatusCode());
+    }
+
+    private HttpClient createElasticClient() {
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials
+                = new UsernamePasswordCredentials("elastic",
+                                                  "changeme");
+        provider.setCredentials(AuthScope.ANY,
+                                credentials);
+
+        return HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+    }
+
+    public void waitUntilReady(int repeat,
+                               long wait) throws InterruptedException {
+
+        HttpClient client = this.createElasticClient();
+        HttpGet request = new HttpGet("http://localhost:9200");
+        int times = repeat;
+        while (times > 0) {
+            try {
+                HttpResponse response = client.execute(request);
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == 200) {
+                    times = 0;
+                } else {
+                    times--;
+                    logger.info("Waiting for elasticsearch to be ready");
+                    Thread.sleep(wait);
+                }
+            } catch (IOException e) {
+                times--;
+                logger.info("Waiting for elasticsearch to be ready");
+                Thread.sleep(wait);
+            }
+        }
     }
 }

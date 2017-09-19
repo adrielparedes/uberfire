@@ -38,6 +38,12 @@ import static org.uberfire.ext.metadata.backend.hibernate.index.Serializer.toByt
 
 public class SimpleFieldFactory {
 
+    private String fieldPrefix;
+
+    public SimpleFieldFactory(String prefix) {
+        this.fieldPrefix = prefix;
+    }
+
     public IndexableField[] build(final KProperty<?> property) {
 
         if (Enum.class.isAssignableFrom(property.getValue().getClass())) {
@@ -168,7 +174,7 @@ public class SimpleFieldFactory {
     }
 
     private String getName(KProperty<?> property) {
-        return "properties." + property.getName();
+        return this.fieldPrefix + "." + property.getName();
     }
 
     private IndexableField[] build(final VersionHistory versionHistory) {

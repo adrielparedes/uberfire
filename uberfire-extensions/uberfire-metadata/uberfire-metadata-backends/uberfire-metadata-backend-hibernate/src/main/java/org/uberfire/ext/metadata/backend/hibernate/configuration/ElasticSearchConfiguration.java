@@ -45,7 +45,7 @@ public class ElasticSearchConfiguration extends MetadataSearchConfigurationBase 
                     elasticsearchPreferences.getRequiredIndexStatus());
         addProperty(HIBERNATE_SEARCH_DEFAULT_ELASTICSEARCH_INDEX_SCHEMA_MANAGEMENT_STRATEGY,
                     elasticsearchPreferences.getIndexSchemaManagementStrategy());
-        addProperty(HIBERNATE_SEARCH_DEFAULT_ELASTICSEARCH_DYNAMIC_MAPPING,
+        addProperty(HIBERNATE_SEARCH_DEFAULT_ELASTICSEARCH_DYNAMIC_MAPPING.trim(),
                     "true");
     }
 }

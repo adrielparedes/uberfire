@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,23 +32,21 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
+import org.uberfire.ext.metadata.MetadataConfig;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
 import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
 import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.QueryAdapter;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.preferences.LucenePreferences;
 import org.uberfire.io.IOService;
 import org.uberfire.io.attribute.DublinCoreView;
@@ -55,19 +54,18 @@ import org.uberfire.java.nio.base.version.VersionAttributeView;
 import org.uberfire.java.nio.file.FileSystemAlreadyExistsException;
 import org.uberfire.java.nio.file.Path;
 
-import static org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil.toKObject;
-
 public abstract class BaseIndexTest {
 
     protected static final Map<String, Path> basePaths = new HashMap<String, Path>();
     protected static final List<File> tempFiles = new ArrayList<File>();
     protected boolean created = false;
-    protected LuceneConfig config;
+    protected MetadataConfig config;
     protected IOService ioService = null;
     private int seed = new Random(10L).nextInt();
     protected HibernateSearchSearchIndex searchIndex;
     protected HibernateSearchIndexProvider indexProvider;
     protected HibernateSearchIndexEngine indexEngine;
+    protected QueryAdapter queryAdapter;
 
     @AfterClass
     @BeforeClass
@@ -95,7 +93,7 @@ public abstract class BaseIndexTest {
         if (ioService == null) {
 
             HashMap<String, Analyzer> analyzers = new HashMap<>();
-            analyzers.put(LuceneIndex.CUSTOM_FIELD_FILENAME,
+            analyzers.put(IndexProvider.CUSTOM_FIELD_FILENAME,
                           new FilenameAnalyzer());
 
             PerFieldAnalyzerWrapper analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(CharArraySet.EMPTY_SET),
@@ -106,7 +104,12 @@ public abstract class BaseIndexTest {
                     .withPreferences(new HibernateSearchPreferences())
                     .build();
 
-            indexProvider = new HibernateSearchIndexProvider(searchIntegrator);
+            this.queryAdapter = new QueryAdapter(KObjectImpl.class,
+                                                 "properties",
+                                                 Arrays.asList(IndexProvider.FULL_TEXT));
+
+            indexProvider = new HibernateSearchIndexProvider(searchIntegrator,
+                                                             this.queryAdapter);
 
             searchIndex = new HibernateSearchSearchIndex(indexProvider,
                                                          analyzer);
@@ -157,14 +160,6 @@ public abstract class BaseIndexTest {
 
     protected Path getBasePath(final String repositoryName) {
         return basePaths.get(repositoryName);
-    }
-
-    protected void listHitPaths(final IndexSearcher searcher,
-                                final ScoreDoc[] hits) throws IOException {
-        for (int i = 0; i < hits.length; i++) {
-            final KObject ko = toKObject(searcher.doc(hits[i].doc));
-            System.out.println(ko.getKey());
-        }
     }
 
     private Path getDirectoryPath(final String repositoryName) {

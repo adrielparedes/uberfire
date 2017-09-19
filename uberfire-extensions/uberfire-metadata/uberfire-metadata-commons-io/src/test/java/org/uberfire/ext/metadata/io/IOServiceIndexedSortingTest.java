@@ -21,24 +21,19 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.java.nio.file.OpenOption;
 import org.uberfire.java.nio.file.Path;
 
 import static org.junit.Assert.*;
-import static org.uberfire.ext.metadata.io.KObjectUtil.toKCluster;
 
 @RunWith(org.jboss.byteman.contrib.bmunit.BMUnitRunner.class)
 @BMScript(value = "byteman/index.btm")
@@ -63,9 +58,9 @@ public class IOServiceIndexedSortingTest extends BaseIndexTest {
         waitForCountDown(5000);
 
         {
-            final Sort sort = new Sort(new SortField("properties." + FieldFactory.FILE_NAME_FIELD_SORTED,
+            final Sort sort = new Sort(new SortField(FieldFactory.FILE_NAME_FIELD_SORTED,
                                                      SortField.Type.STRING));
-            final Query query = new WildcardQuery(new Term("properties.filename",
+            final Query query = new WildcardQuery(new Term("filename",
                                                            "*txt"));
 
             List<KObjectImpl> hits = this.indexProvider.findByQuery(KObjectImpl.class,
